@@ -84,11 +84,12 @@ public class Main extends PApplet{
             stroke(0);
             strokeWeight(2);
             line(n, 1, -PLANE_WIDTH, n, 1, PLANE_WIDTH );
-            line(-PLANE_WIDTH, 1, n, PLANE_WIDTH, 1, n );
+            line(-PLANE_WIDTH, 0.01f, n, PLANE_WIDTH, 0.01f, n );
         }
 
         for(Dog dog: dogs){
             dog.draw(this);
+            dog.doAction(this);
         }
 
         // move the player location according to keys pressed
