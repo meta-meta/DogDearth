@@ -14,6 +14,7 @@ import java.util.Map;
 
 public class Main extends PApplet{
     public static final int PLANE_WIDTH = 1000;
+    public static final int NUM_DOGS = 10;
     PShape gradient;
     PShape plane;
 
@@ -56,8 +57,8 @@ public class Main extends PApplet{
         plane.vertex(-PLANE_WIDTH, 0, -PLANE_WIDTH);
         plane.endShape();
 
-        for(int i = 0; i < 10; i++){
-            float h = random(50, 100);
+        for(int i = 0; i < NUM_DOGS; i++){
+            float h = random(150, 200);
             dogs.add(new Dog(   this,
                                 random(-PLANE_WIDTH, PLANE_WIDTH), h/2 + 1, random(-PLANE_WIDTH, PLANE_WIDTH),
                                 0, ((int)random(4))*HALF_PI, 0,
