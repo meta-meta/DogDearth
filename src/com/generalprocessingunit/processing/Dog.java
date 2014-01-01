@@ -46,7 +46,7 @@ public class Dog
         bri = p5.random(10, 200);
 
         speed = p5.random(0.05f, 1.5f);
-        walkingSpeed = 500 * speed;
+        walkingSpeed = 300 * speed;
         runningSpeed = 1000 * speed;
     }
 
@@ -65,7 +65,7 @@ public class Dog
         p5.box(d, h, w);
 
         p5.translate(d/2, h/2, 0);
-        p5.box(w);
+        p5.box(standingW * 1.3f);
         p5.popMatrix();
     }
 
@@ -109,18 +109,23 @@ public class Dog
     }
 
     enum Action {
-        WALK        (1000, State.WALKING),
+        WALK        (2000, State.WALKING),
         RUN         (1000, State.RUNNING),
-        SIT         (2000, State.SITTING),
-        STAND       (2000, State.STANDING),
+        SIT         (500, State.SITTING),
+        STAY        (3000),
+        STAND       (600, State.STANDING),
         TURN        (500, State.STANDING),
-        LIE_DOWN    (3000, State.LYING);
+        LIE_DOWN    (800, State.LYING);
 
         int duration;
         State endState;
 
-        Action(int duration, State endState){
+        Action(int duration){
             this.duration = duration;
+        }
+
+        Action(int duration, State endState){
+            this(duration);
             this.endState = endState;
         }
 
@@ -148,31 +153,40 @@ public class Dog
                     break;
                 }
                 case TURN: {
-                    dog.orientation.y = dog.orientationAtActionStart.y + progress * PConstants.HALF_PI * (dog.turnRight ? 1 : -1);
+                    float target = dog.orientationAtActionStart.y + PConstants.HALF_PI * (dog.turnRight ? 1 : -1);
+                    target = (target < PConstants.QUARTER_PI ? 0 :
+                            (Math.abs(target - PConstants.HALF_PI) < PConstants.QUARTER_PI ? PConstants.HALF_PI :
+                                    (Math.abs(target - PConstants.PI) < PConstants.QUARTER_PI ? PConstants.PI :
+                                            (Math.abs(target - (PConstants.PI + PConstants.HALF_PI)) < PConstants.QUARTER_PI ? (PConstants.PI + PConstants.HALF_PI) : 0))));
+
+                    dog.orientation.y = dog.orientationAtActionStart.y + progress * (target - dog.orientationAtActionStart.y);
                     break;
                 }
                 case LIE_DOWN: {
                     if(State.SITTING == dog.currentState){
-                        lieDown(dog, progress, dog.sittingH, dog.sittingW, dog.sittingD, dog.lyingH, dog.lyingW, dog.lyingD);
+                        changePose(dog, progress, dog.sittingH, dog.sittingW, dog.sittingD, dog.lyingH, dog.lyingW, dog.lyingD);
                     } else if(State.STANDING == dog.currentState){
-                        lieDown(dog, progress, dog.standingH, dog.standingW, dog.standingD, dog.lyingH, dog.lyingW, dog.lyingD);
+                        changePose(dog, progress, dog.standingH, dog.standingW, dog.standingD, dog.lyingH, dog.lyingW, dog.lyingD);
                     }
                     break;
                 }
                 case SIT: {
                     if(State.LYING == dog.currentState){
-                        lieDown(dog, progress, dog.lyingH, dog.lyingW, dog.lyingD, dog.sittingH, dog.sittingW, dog.sittingD);
+                        changePose(dog, progress, dog.lyingH, dog.lyingW, dog.lyingD, dog.sittingH, dog.sittingW, dog.sittingD);
                     } else if(State.STANDING == dog.currentState){
-                        lieDown(dog, progress, dog.standingH, dog.standingW, dog.standingD, dog.sittingH, dog.sittingW, dog.sittingD);
+                        changePose(dog, progress, dog.standingH, dog.standingW, dog.standingD, dog.sittingH, dog.sittingW, dog.sittingD);
                     }
                     break;                    
                 }
                 case STAND: {
                     if(State.LYING == dog.currentState){
-                        lieDown(dog, progress, dog.lyingH, dog.lyingW, dog.lyingD, dog.standingH, dog.standingW, dog.standingD);
+                        changePose(dog, progress, dog.lyingH, dog.lyingW, dog.lyingD, dog.standingH, dog.standingW, dog.standingD);
                     } else if(State.SITTING == dog.currentState){
-                        lieDown(dog, progress, dog.sittingH, dog.sittingW, dog.sittingD, dog.standingH, dog.standingW, dog.standingD);
+                        changePose(dog, progress, dog.sittingH, dog.sittingW, dog.sittingD, dog.standingH, dog.standingW, dog.standingD);
                     }
+                    break;
+                }
+                case STAY: {
                     break;
                 }
                 default:
@@ -180,10 +194,11 @@ public class Dog
             }
         }
         
-        void lieDown(Dog dog, float progress, float initialH, float initialW, float initialD, float goalH, float goalW, float goalD){
+        void changePose(Dog dog, float progress, float initialH, float initialW, float initialD, float goalH, float goalW, float goalD){
             dog.h = initialH + ((goalH - initialH)) * progress;
             dog.w = initialW + ((goalW - initialW)) * progress;
             dog.d = initialD + ((goalD - initialD)) * progress;
+            dog.location.y = dog.h/2;
         }
     }
 
@@ -215,7 +230,9 @@ public class Dog
     }
 
     void decideNextAction(PApplet p5){
-        currentState = currentAction.endState;
+        if(Action.STAY != currentAction){
+            currentState = currentAction.endState;
+        }
         millisAtActionStart = p5.millis();
         locationAtActionStart = new PVector(location.x, location.y, location.z);
         orientationAtActionStart = new PVector(orientation.x, orientation.y, orientation.z);
@@ -224,6 +241,8 @@ public class Dog
         Action[] possibleActions = currentState.possibleActions;
         if(p5.random(1) > currentState.probabilityMaintainState){
             currentAction = possibleActions[(int)p5.random(possibleActions.length)];
+        } else {
+            currentAction = Action.STAY;
         }
         actionInProgress = true;
     }
