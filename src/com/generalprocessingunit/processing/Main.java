@@ -6,6 +6,7 @@ import processing.core.PShape;
 import processing.core.PVector;
 
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -20,6 +21,9 @@ public class Main extends PApplet{
 
     List<Dog> dogs = new ArrayList<>();
 
+    int mouseXAtClick = 0;
+    int mouseYAtClick = 0;
+
     static Map<Integer, Boolean> keys = new HashMap<>();
     static {
         keys.put(PConstants.UP, false);
@@ -29,6 +33,7 @@ public class Main extends PApplet{
     }
 
     PVector playerLocation = new PVector(0, 400, 0);
+    PVector lookAt = new PVector(0, 0, 100f);
 
     public static void main(String[] args){
 		PApplet.main(new String[] { /*"--present",*/ Main.class.getCanonicalName() });
@@ -75,8 +80,8 @@ public class Main extends PApplet{
         hint(ENABLE_DEPTH_MASK);
 
 
-        camera(playerLocation.x, playerLocation.y, playerLocation.z, playerLocation.x, playerLocation.y, playerLocation.z + 100f, 0, -1f, 0);
-        perspective(PI/2.0f, width/height, 0.001f, 10000f);
+        camera(playerLocation.x, playerLocation.y, playerLocation.z, playerLocation.x + lookAt.x, playerLocation.y + lookAt.y, playerLocation.z + lookAt.z, 0, -1f, 0);
+        perspective(PI/2.8f, width/height, 0.001f, 10000f);
 
         shape(plane);
 
@@ -106,11 +111,27 @@ public class Main extends PApplet{
         if(keys.get(PConstants.RIGHT)){
             playerLocation.x += 5f;
         }
+        if(mousePressed){
+            lookAt = Rotation.rotatePVectorY((mouseX - mouseXAtClick) * 0.0001f, lookAt);
+            lookAt = Rotation.rotatePVectorX((mouseY - mouseYAtClick) * 0.0001f, lookAt);
+        }
     }
+
+    @Override
+    public void mousePressed(MouseEvent e)
+    {
+        mouseXAtClick = e.getX();
+        mouseYAtClick = e.getY();
+        super.mousePressed(e);
+    }
+
+
+
 
     @Override
     public void keyPressed(KeyEvent e)
     {
+
         keys.put(e.getKeyCode(), true);
     }
 
