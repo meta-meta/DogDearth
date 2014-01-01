@@ -2,46 +2,29 @@ package com.generalprocessingunit.processing;
 
 import processing.core.PApplet;
 import processing.core.PConstants;
-import processing.core.PShape;
 import processing.core.PVector;
 
 public class Dog
 {
     PVector location;
     PVector orientation;
-    float w, h, d;
-    PShape model; // TODO: load blender mesh into this
-    float lyingW, lyingH, lyingD, sittingW, sittingH, sittingD, standingW, standingH, standingD;
+    PVector dimensions, lyingDimensions, sittingDimensions, standingDimensions;
     float hue, sat, bri;
     float speed;
     float walkingSpeed;
     float runningSpeed;
 
-    Dog(PApplet p5, float x, float y, float z, float rx, float ry, float rz, float w, float h, float d){
-//        model = p5.createShape();
-//        model.beginShape();
-//        model.endShape();
 
+    Dog(PApplet p5, float x, float y, float z, float rx, float ry, float rz, float w, float h, float d){
         location = new PVector(x, y, z);
         orientation = new PVector(rx, ry, rz);
 
-        standingW = w;
-        standingH = h;
-        standingD = d;
+        dimensions = new PVector(w, h, d);
+        standingDimensions = new PVector(w, h, d);
+        sittingDimensions = new PVector(w, h * 1.5f, d * 0.7f);
+        lyingDimensions = new PVector(w, h / 2, d);
 
-        sittingW = w;
-        sittingH = h*1.5f;
-        sittingD = d*0.7f;
-
-        lyingW = w;
-        lyingH = h/2;
-        lyingD = d;
-
-        this.w = w;
-        this.h = h;
-        this.d = d;
-
-        hue = p5.random(30, 70);
+        hue = p5.random(30, 55);
         sat = p5.random(10, 140);
         bri = p5.random(10, 200);
 
@@ -51,21 +34,22 @@ public class Dog
     }
 
     void draw(PApplet p5){
-        p5.pushMatrix();
         p5.colorMode(PConstants.HSB);
-//        p5.stroke(hue, sat, bri);
-//        p5.noFill();
         p5.fill(hue, sat, bri);
         p5.stroke(200);
         p5.colorMode(PConstants.RGB);
 
+        p5.pushMatrix();
 
+        // Body
         p5.translate(location.x, location.y, location.z);
         p5.rotateY(orientation.y);
-        p5.box(d, h, w);
+        p5.box(dimensions.z, dimensions.y, dimensions.x);
 
-        p5.translate(d/2, h/2, 0);
-        p5.box(standingW * 1.3f);
+        // Head
+        p5.translate(dimensions.z/2, dimensions.y/2, 0);
+        p5.box(standingDimensions.x * 1.3f);
+
         p5.popMatrix();
     }
 
@@ -112,10 +96,10 @@ public class Dog
         WALK        (2000, State.WALKING),
         RUN         (1000, State.RUNNING),
         SIT         (500, State.SITTING),
-        STAY        (3000),
         STAND       (600, State.STANDING),
         TURN        (500, State.STANDING),
-        LIE_DOWN    (800, State.LYING);
+        LIE_DOWN    (800, State.LYING),
+        STAY        (3000);
 
         int duration;
         State endState;
@@ -129,19 +113,8 @@ public class Dog
             this.endState = endState;
         }
 
-        private void move(Dog dog, float speed, float progress){
-            float xCoef = PApplet.cos(-dog.orientation.y),
-                    zCoef = PApplet.sin(-dog.orientation.y);
-            boolean res = dog.tryMove(
-                    dog.locationAtActionStart.x + xCoef * speed * progress,
-                    dog.locationAtActionStart.z + zCoef * speed * progress );
-            if(!res){
-                dog.actionInProgress = false;
-            }
-        }
-
         void doAction(int millis, Dog dog){
-            float progress = (millis/(float)duration);
+            float progress = (millis/(float)duration); // 0 - 1.0
 
             switch (this) {
                 case WALK: {
@@ -154,35 +127,35 @@ public class Dog
                 }
                 case TURN: {
                     float target = dog.orientationAtActionStart.y + PConstants.HALF_PI * (dog.turnRight ? 1 : -1);
-                    target = (target < PConstants.QUARTER_PI ? 0 :
+                    target = (target < PConstants.QUARTER_PI ? 0 : // Snap the target rotation to 12|3|6|9 o'clock
                             (Math.abs(target - PConstants.HALF_PI) < PConstants.QUARTER_PI ? PConstants.HALF_PI :
                                     (Math.abs(target - PConstants.PI) < PConstants.QUARTER_PI ? PConstants.PI :
                                             (Math.abs(target - (PConstants.PI + PConstants.HALF_PI)) < PConstants.QUARTER_PI ? (PConstants.PI + PConstants.HALF_PI) : 0))));
 
-                    dog.orientation.y = dog.orientationAtActionStart.y + progress * (target - dog.orientationAtActionStart.y);
+                    dog.orientation.y = tween(dog.orientationAtActionStart.y, target, progress);
                     break;
                 }
                 case LIE_DOWN: {
                     if(State.SITTING == dog.currentState){
-                        changePose(dog, progress, dog.sittingH, dog.sittingW, dog.sittingD, dog.lyingH, dog.lyingW, dog.lyingD);
+                        changePose(dog, progress, dog.sittingDimensions, dog.lyingDimensions);
                     } else if(State.STANDING == dog.currentState){
-                        changePose(dog, progress, dog.standingH, dog.standingW, dog.standingD, dog.lyingH, dog.lyingW, dog.lyingD);
+                        changePose(dog, progress, dog.standingDimensions, dog.lyingDimensions);
                     }
                     break;
                 }
                 case SIT: {
                     if(State.LYING == dog.currentState){
-                        changePose(dog, progress, dog.lyingH, dog.lyingW, dog.lyingD, dog.sittingH, dog.sittingW, dog.sittingD);
+                        changePose(dog, progress, dog.lyingDimensions, dog.sittingDimensions);
                     } else if(State.STANDING == dog.currentState){
-                        changePose(dog, progress, dog.standingH, dog.standingW, dog.standingD, dog.sittingH, dog.sittingW, dog.sittingD);
+                        changePose(dog, progress, dog.standingDimensions, dog.sittingDimensions);
                     }
-                    break;                    
+                    break;
                 }
                 case STAND: {
                     if(State.LYING == dog.currentState){
-                        changePose(dog, progress, dog.lyingH, dog.lyingW, dog.lyingD, dog.standingH, dog.standingW, dog.standingD);
+                        changePose(dog, progress, dog.lyingDimensions, dog.standingDimensions);
                     } else if(State.SITTING == dog.currentState){
-                        changePose(dog, progress, dog.sittingH, dog.sittingW, dog.sittingD, dog.standingH, dog.standingW, dog.standingD);
+                        changePose(dog, progress, dog.sittingDimensions, dog.standingDimensions);
                     }
                     break;
                 }
@@ -193,12 +166,33 @@ public class Dog
                     break;
             }
         }
-        
-        void changePose(Dog dog, float progress, float initialH, float initialW, float initialD, float goalH, float goalW, float goalD){
-            dog.h = initialH + ((goalH - initialH)) * progress;
-            dog.w = initialW + ((goalW - initialW)) * progress;
-            dog.d = initialD + ((goalD - initialD)) * progress;
-            dog.location.y = dog.h/2;
+
+        private void move(Dog dog, float speed, float progress){
+            float   xCoef = PApplet.cos(-dog.orientation.y),
+                    zCoef = PApplet.sin(-dog.orientation.y);
+
+            boolean res = dog.tryMove(
+                    dog.locationAtActionStart.x + xCoef * speed * progress,
+                    dog.locationAtActionStart.z + zCoef * speed * progress );
+
+            if(!res){
+                dog.actionInProgress = false;
+            }
+        }
+
+        private void changePose(Dog dog, float progress, PVector initial, PVector goal){
+            dog.dimensions = tween(initial, goal, progress);
+            dog.location.y = dog.dimensions.y / 2;
+        }
+
+        private PVector tween(PVector initial, PVector goal, float progress){
+            return new PVector( tween(initial.x, goal.x, progress),
+                                tween(initial.y, goal.y, progress),
+                                tween(initial.z, goal.z, progress));
+        }
+
+        private float tween(float initial, float goal, float progress){
+            return initial + (goal - initial) * progress;
         }
     }
 

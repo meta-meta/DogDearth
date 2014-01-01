@@ -32,7 +32,7 @@ public class Main extends PApplet{
         keys.put(PConstants.RIGHT, false);
     }
 
-    PVector playerLocation = new PVector(0, 400, 0);
+    PVector playerLocation = new PVector(0, 400, -1000);
     PVector lookAt = new PVector(0, 0, 100f);
 
     public static void main(String[] args){
@@ -124,9 +124,6 @@ public class Main extends PApplet{
         mouseYAtClick = e.getY();
         super.mousePressed(e);
     }
-
-
-
 
     @Override
     public void keyPressed(KeyEvent e)
