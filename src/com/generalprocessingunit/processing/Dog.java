@@ -2,6 +2,7 @@ package com.generalprocessingunit.processing;
 
 import processing.core.PApplet;
 import processing.core.PConstants;
+import processing.core.PShape;
 import processing.core.PVector;
 
 public class Dog
@@ -14,8 +15,27 @@ public class Dog
     float walkingSpeed;
     float runningSpeed;
 
+    PShape pShape;
 
     Dog(PApplet p5, float x, float y, float z, float rx, float ry, float rz, float w, float h, float d){
+        pShape = p5.loadShape("fur_tail_dog.obj");
+
+        // this is for the specific obj loaded.
+        pShape.translate(pShape.getWidth()/2, 0, 0);
+        pShape.scale(30);
+
+        hue = p5.random(30, 55);
+        sat = p5.random(10, 140);
+        bri = p5.random(10, 200);
+        p5.colorMode(PConstants.HSB);
+        pShape.setFill(p5.color(hue, sat, bri));
+        p5.colorMode(PConstants.RGB);
+
+        w = pShape.getWidth();
+        h = pShape.getHeight();
+        d = pShape.getDepth();
+        y = h/2;
+
         location = new PVector(x, y, z);
         orientation = new PVector(rx, ry, rz);
 
@@ -23,10 +43,6 @@ public class Dog
         standingDimensions = new PVector(w, h, d);
         sittingDimensions = new PVector(w, h * 1.5f, d * 0.7f);
         lyingDimensions = new PVector(w, h / 2, d);
-
-        hue = p5.random(30, 55);
-        sat = p5.random(10, 140);
-        bri = p5.random(10, 200);
 
         speed = p5.random(0.05f, 1.5f);
         walkingSpeed = 300 * speed;
@@ -44,11 +60,13 @@ public class Dog
         // Body
         p5.translate(location.x, location.y, location.z);
         p5.rotateY(orientation.y);
-        p5.box(dimensions.z, dimensions.y, dimensions.x);
+
+        p5.shape(pShape);
+//        p5.box(dimensions.z, dimensions.y, dimensions.x);
 
         // Head
-        p5.translate(dimensions.z/2, dimensions.y/2, 0);
-        p5.box(standingDimensions.x * 1.3f);
+//        p5.translate(dimensions.z/2, dimensions.y/2, 0);
+//        p5.box(standingDimensions.x * 1.3f);
 
         p5.popMatrix();
     }

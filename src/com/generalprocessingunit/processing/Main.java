@@ -79,6 +79,7 @@ public class Main extends PApplet{
         shape(gradient);
         hint(ENABLE_DEPTH_MASK);
 
+        pointLight(255,255,255,0,100,0);
 
         camera(playerLocation.x, playerLocation.y, playerLocation.z, playerLocation.x + lookAt.x, playerLocation.y + lookAt.y, playerLocation.z + lookAt.z, 0, -1f, 0);
         perspective(PI/2.8f, width/height, 0.001f, 10000f);
