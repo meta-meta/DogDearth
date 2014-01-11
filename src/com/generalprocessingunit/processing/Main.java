@@ -20,6 +20,7 @@ public class Main extends PApplet{
     PShape plane;
 
     List<Dog> dogs = new ArrayList<>();
+    List<Hole> holes = new ArrayList<>();
 
     int mouseXAtClick = 0;
     int mouseYAtClick = 0;
@@ -69,6 +70,10 @@ public class Main extends PApplet{
                                 0, ((int)random(4))*HALF_PI, 0,
                                 random(20, 50), h, random(50, 150)));
         }
+
+        for(int i = 0; i < 5; i++){
+            holes.add(new Hole(this, random(-HALF_PLANE_WIDTH, HALF_PLANE_WIDTH), random(-HALF_PLANE_WIDTH, HALF_PLANE_WIDTH)));
+        }
     }
 	
 	@Override
@@ -97,6 +102,28 @@ public class Main extends PApplet{
         for(Dog dog: dogs){
             dog.draw(this);
             dog.doAction(this);
+        }
+
+        for(Hole hole: holes){
+            pushMatrix();
+            translate(hole.location.x, hole.location.y, hole.location.z);
+            rotateY(millis()/1000f);
+            hole.draw(this);
+            popMatrix();
+        }
+
+        for(Dog dog: dogs){
+            for(Hole hole: holes){
+                PVector v = dog.getPawDriverSideFront();
+                pushMatrix();
+                translate(v.x,v.y,v.z);
+                box(20);
+                popMatrix();
+
+                if(PVector.dist(v,hole.location) < hole.r){
+                    dog.location.y = -100;
+                }
+            }
         }
 
         // move the player location according to keys pressed

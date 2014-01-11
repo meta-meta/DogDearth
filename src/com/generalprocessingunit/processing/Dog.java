@@ -49,6 +49,28 @@ public class Dog
         runningSpeed = 1000 * speed;
     }
 
+    PVector getPawDriverSideFront(){
+        PVector v = Rotation.rotatePVectorY(orientation.y, new PVector(-dimensions.x/2, 0, dimensions.z/2));
+        v.add(location.x, 0, location.z);
+        return v;
+    }
+    PVector getPawPassengerSideFront(){
+        PVector v = Rotation.rotatePVectorY(orientation.y, new PVector(dimensions.x/2, 0, dimensions.z/2));
+        v.add(location.x, 0, location.z);
+        return v;
+    }
+
+    PVector getPawDriverSideRear(){
+        PVector v = Rotation.rotatePVectorY(orientation.y, new PVector(-dimensions.x/2, 0, -dimensions.z/2));
+        v.add(location.x, 0, location.z);
+        return v;
+    }
+    PVector getPawPassengerSideRear(){
+        PVector v = Rotation.rotatePVectorY(orientation.y, new PVector(dimensions.x/2, 0, -dimensions.z/2));
+        v.add(location.x, 0, location.z);
+        return v;
+    }
+
     void draw(PApplet p5){
         p5.colorMode(PConstants.HSB);
         p5.fill(hue, sat, bri);
