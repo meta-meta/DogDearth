@@ -2,6 +2,7 @@ package com.generalprocessingunit.processing;
 
 import processing.core.PApplet;
 import processing.core.PConstants;
+import processing.core.PGraphics;
 import processing.core.PShape;
 import processing.core.PVector;
 
@@ -46,7 +47,7 @@ public class Hole
         }
     }
 
-    void draw(PApplet p5){
+    void draw(PGraphics pG, PApplet p5){
 
         int m = p5.millis()-millisAtBelch;
         float belchAmplitude;
@@ -61,6 +62,6 @@ public class Hole
         }
 
         wobble(p5.millis(), belchAmplitude );
-        p5.shape(shape);
+        pG.shape(shape);
     }
 }

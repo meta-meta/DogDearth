@@ -2,6 +2,7 @@ package com.generalprocessingunit.processing;
 
 import processing.core.PApplet;
 import processing.core.PConstants;
+import processing.core.PGraphics;
 import processing.core.PShape;
 import processing.core.PVector;
 
@@ -71,31 +72,31 @@ public class Dog
         return v;
     }
 
-    void draw(PApplet p5){
-        p5.colorMode(PConstants.HSB);
-        p5.fill(hue, sat, bri);
-        p5.stroke(200);
-        p5.colorMode(PConstants.RGB);
+    void draw(PGraphics pG){
+        pG.colorMode(PConstants.HSB);
+        pG.fill(hue, sat, bri);
+        pG.stroke(200);
+        pG.colorMode(PConstants.RGB);
 
-        p5.pushMatrix();
+        pG.pushMatrix();
 
         // Body
-        p5.translate(location.x, location.y, location.z);
-        p5.rotateY(orientation.y);
+        pG.translate(location.x, location.y, location.z);
+        pG.rotateY(orientation.y);
 
-        p5.shape(pShape);
+        pG.shape(pShape);
 //        p5.box(dimensions.z, dimensions.y, dimensions.x);
 
         // Head
 //        p5.translate(dimensions.z/2, dimensions.y/2, 0);
 //        p5.box(standingDimensions.x * 1.3f);
 
-        p5.popMatrix();
+        pG.popMatrix();
     }
 
     boolean tryMove(float x, float z){
         // TODO: HALF_PLANE_WIDTH decides the coordinates of the turf, and the turf is really what should be referenced here
-        if(x > Main.HALF_PLANE_WIDTH || x < -Main.HALF_PLANE_WIDTH || z > Main.HALF_PLANE_WIDTH || z < -Main.HALF_PLANE_WIDTH){
+        if(x > DogDearth.HALF_PLANE_WIDTH || x < -DogDearth.HALF_PLANE_WIDTH || z > DogDearth.HALF_PLANE_WIDTH || z < -DogDearth.HALF_PLANE_WIDTH){
             return false;
         } else {
             location.x = x;
