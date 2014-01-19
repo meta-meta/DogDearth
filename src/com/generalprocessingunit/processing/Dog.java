@@ -50,23 +50,23 @@ public class Dog
     }
 
     PVector getPawDriverSideFront(){
-        PVector v = Rotation.rotatePVectorY(orientation.y, new PVector(-dimensions.x/2, 0, dimensions.z/2));
+        PVector v = Rotation.rotatePVectorY(orientation.y, new PVector(dimensions.x/2 - 30, 0, dimensions.z/2 - 10));
         v.add(location.x, 0, location.z);
         return v;
     }
     PVector getPawPassengerSideFront(){
-        PVector v = Rotation.rotatePVectorY(orientation.y, new PVector(dimensions.x/2, 0, dimensions.z/2));
+        PVector v = Rotation.rotatePVectorY(orientation.y, new PVector(dimensions.x/2 - 30, 0, -dimensions.z/2 + 10));
         v.add(location.x, 0, location.z);
         return v;
     }
 
     PVector getPawDriverSideRear(){
-        PVector v = Rotation.rotatePVectorY(orientation.y, new PVector(-dimensions.x/2, 0, -dimensions.z/2));
+        PVector v = Rotation.rotatePVectorY(orientation.y, new PVector(-dimensions.x/2 + 45, 0, dimensions.z/2 - 10));
         v.add(location.x, 0, location.z);
         return v;
     }
     PVector getPawPassengerSideRear(){
-        PVector v = Rotation.rotatePVectorY(orientation.y, new PVector(dimensions.x/2, 0, -dimensions.z/2));
+        PVector v = Rotation.rotatePVectorY(orientation.y, new PVector(-dimensions.x/2 + 45, 0, -dimensions.z/2 + 10));
         v.add(location.x, 0, location.z);
         return v;
     }
@@ -94,8 +94,8 @@ public class Dog
     }
 
     boolean tryMove(float x, float z){
-        // TODO: PLANE_WIDTH decides the coordinates of the turf, and the turf is really what should be referenced here
-        if(x > Main.PLANE_WIDTH || x < -Main.PLANE_WIDTH || z > Main.PLANE_WIDTH || z < -Main.PLANE_WIDTH){
+        // TODO: HALF_PLANE_WIDTH decides the coordinates of the turf, and the turf is really what should be referenced here
+        if(x > Main.HALF_PLANE_WIDTH || x < -Main.HALF_PLANE_WIDTH || z > Main.HALF_PLANE_WIDTH || z < -Main.HALF_PLANE_WIDTH){
             return false;
         } else {
             location.x = x;
@@ -139,7 +139,7 @@ public class Dog
         STAND       (600, State.STANDING),
         TURN        (500, State.STANDING),
         LIE_DOWN    (800, State.LYING),
-        STAY        (3000);
+        STAY        (1000);
 
         int duration;
         State endState;
@@ -239,10 +239,10 @@ public class Dog
     static {
         State.WALKING.setPossibleActions     (Action.TURN, Action.STAND, Action.RUN);
         State.RUNNING.setPossibleActions     (Action.TURN /*TODO: slide when turning and running*/, Action.STAND, Action.WALK);
-        State.SITTING.setPossibleActions     (Action.LIE_DOWN, Action.STAND);
-        State.STANDING.setPossibleActions    (Action.TURN, Action.SIT, Action.LIE_DOWN, Action.WALK);
-        State.TURNING.setPossibleActions     (Action.STAND, Action.SIT, Action.LIE_DOWN, Action.WALK);
-        State.LYING.setPossibleActions       (Action.SIT, Action.STAND);
+        State.SITTING.setPossibleActions     (/*Action.LIE_DOWN,*/ Action.STAND);
+        State.STANDING.setPossibleActions    (Action.TURN, /*Action.SIT, Action.LIE_DOWN,*/ Action.WALK);
+        State.TURNING.setPossibleActions     (Action.STAND, /*Action.SIT, Action.LIE_DOWN,*/ Action.WALK, Action.RUN);
+        State.LYING.setPossibleActions       (/*Action.SIT, */Action.STAND);
     }
 
     public void doAction(PApplet p5)
