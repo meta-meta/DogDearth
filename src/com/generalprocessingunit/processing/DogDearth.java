@@ -13,11 +13,12 @@ import java.util.Map;
 
 public class DogDearth
 {
-    public static final int HALF_PLANE_WIDTH = 2000;
-    public static final int NUM_DOGS = 28;
-    public static final int NUM_HOLES = 17;
+    public static final int HALF_PLANE_WIDTH = 1500;
+    public static final int NUM_DOGS = 15;
+    public static final int NUM_HOLES = 15;
     PShape gradient;
     PShape plane;
+    PShape gazebo;
 
     List<Dog> dogs = new ArrayList<>();
     List<Hole> holes = new ArrayList<>();
@@ -33,18 +34,18 @@ public class DogDearth
         keys.put(PConstants.RIGHT, false);
     }
 
-    PVector playerLocation = new PVector(0, 400, -1500);
+    PVector playerLocation = new PVector(510, 250, -345);
     PVector lookAt = new PVector(0, -20, 100);
 
     void setup(PApplet p5){
         gradient = p5.createShape();
         gradient.beginShape();
         gradient.fill(127);
-        gradient.vertex(-p5.width, -p5.height);
-        gradient.vertex(p5.width*2, -p5.height);
+        gradient.vertex(-p5.width*2, -p5.height*2);
+        gradient.vertex(p5.width*4, -p5.height*2);
         gradient.fill(0);
-        gradient.vertex(p5.width*2, p5.height*2);
-        gradient.vertex(-p5.width, p5.height*2);
+        gradient.vertex(p5.width*4, p5.height*4);
+        gradient.vertex(-p5.width*2, p5.height*4);
         gradient.endShape();
 
         plane = p5.createShape();
@@ -55,6 +56,11 @@ public class DogDearth
         plane.vertex(HALF_PLANE_WIDTH, 0, -HALF_PLANE_WIDTH);
         plane.vertex(-HALF_PLANE_WIDTH, 0, -HALF_PLANE_WIDTH);
         plane.endShape();
+
+        gazebo=p5.loadShape("gazebo.obj");
+//        gazebo.translate(gazebo.getWidth()/2, 0, 0);
+        gazebo.scale(300);
+        gazebo.setFill(p5.color(0,0,255));
 
         for(int i = 0; i < NUM_DOGS; i++){
             float h = p5.random(150, 200);
@@ -90,6 +96,7 @@ public class DogDearth
             dog.doAction(p5);
         }
 
+//        System.out.println(p5.frameRate);
         List<Dog> deadDogs = new ArrayList<>();
         for(Dog dog: dogs){
             for(Hole hole: holes){
@@ -149,7 +156,9 @@ public class DogDearth
         pG.pointLight(0, 0, 255, 0, 1000, 100);
 
         pG.shape(plane);
+//        pG.shape(gazebo);
 
+//        System.out.println(playerLocation.x + " " + playerLocation.y + " " + playerLocation.z);
         // draw grid
         for( int n = -HALF_PLANE_WIDTH; n <= HALF_PLANE_WIDTH; n += 100){
             pG.stroke(0);
@@ -170,6 +179,12 @@ public class DogDearth
             pG.popMatrix();
         }
 
+
+//        drawHelperBoxFeet(pG);
+    }
+
+    private void drawHelperBoxFeet(PGraphics pG)
+    {
         for(Dog dog: dogs){
             for(Hole hole: holes){
                 pG.noFill();

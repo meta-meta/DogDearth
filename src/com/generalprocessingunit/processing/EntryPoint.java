@@ -67,5 +67,9 @@ public class EntryPoint extends PAppletVR
     public void keyReleased(KeyEvent e)
     {
         DogDearth.keys.put(e.getKeyCode(), false);
+
+        if(e.getKeyCode() == ESC){
+            exit();
+        }
     }
 }
