@@ -1,10 +1,6 @@
 package com.generalprocessingunit.processing;
 
-import processing.core.PApplet;
-import processing.core.PConstants;
-import processing.core.PGraphics;
-import processing.core.PShape;
-import processing.core.PVector;
+import processing.core.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -13,9 +9,9 @@ import java.util.Map;
 
 public class DogDearth
 {
-    public static final int HALF_PLANE_WIDTH = 1500;
-    public static final int NUM_DOGS = 15;
-    public static final int NUM_HOLES = 15;
+    public static final int HALF_PLANE_WIDTH = 1000;
+    public static final int NUM_DOGS = 4;
+    public static final int NUM_HOLES = 2;
     PShape gradient;
     PShape plane;
     PShape gazebo;
@@ -34,7 +30,7 @@ public class DogDearth
         keys.put(PConstants.RIGHT, false);
     }
 
-    PVector playerLocation = new PVector(510, 250, -345);
+    PVector playerLocation = new PVector(0, 250, -1000);
     PVector lookAt = new PVector(0, -20, 100);
 
     void setup(PApplet p5){
@@ -48,16 +44,11 @@ public class DogDearth
         gradient.vertex(-p5.width*2, p5.height*4);
         gradient.endShape();
 
-        plane = p5.createShape();
-        plane.beginShape();
-        plane.fill(20,255,0);
-        plane.vertex(-HALF_PLANE_WIDTH, 0, HALF_PLANE_WIDTH);
-        plane.vertex(HALF_PLANE_WIDTH, 0, HALF_PLANE_WIDTH);
-        plane.vertex(HALF_PLANE_WIDTH, 0, -HALF_PLANE_WIDTH);
-        plane.vertex(-HALF_PLANE_WIDTH, 0, -HALF_PLANE_WIDTH);
-        plane.endShape();
+        createCartesianPlane(p5);
 
         gazebo=p5.loadShape("gazebo.obj");
+        gazebo.translate(0, 80, 0);
+        gazebo.rotateY(PConstants.PI);
 //        gazebo.translate(gazebo.getWidth()/2, 0, 0);
         gazebo.scale(300);
         gazebo.setFill(p5.color(0,0,255));
@@ -80,6 +71,33 @@ public class DogDearth
 
             holes.add(new Hole(p5, newHoleLoc.x, newHoleLoc.z));
         }
+    }
+
+    private void createCartesianPlane(PApplet p5) {
+        // this texture should be much smaller and use p5.textureWrap(PConstants.REPEAT);
+        // currently can't do this on a PShape. Do we want to create this plane every render??
+        PGraphics grid = p5.createGraphics(HALF_PLANE_WIDTH, HALF_PLANE_WIDTH);
+        grid.beginDraw();
+        grid.background(20, 255, 0);
+
+        for( int n = 0; n <= HALF_PLANE_WIDTH; n += 10){
+            grid.stroke(n % 100 == 0 ? 0 : 50);
+            grid.strokeWeight(n % 100 == 0 ? 2 : 1);
+            grid.line(n, 0, n, HALF_PLANE_WIDTH);
+            grid.line(0, n, HALF_PLANE_WIDTH, n);
+        }
+        grid.endDraw();
+
+        plane = p5.createShape();
+        plane.beginShape();
+        plane.fill(255);
+        plane.texture(grid);
+        plane.textureMode(PConstants.NORMAL);
+        plane.vertex(-HALF_PLANE_WIDTH, 0, HALF_PLANE_WIDTH, 0, 1);
+        plane.vertex(HALF_PLANE_WIDTH, 0, HALF_PLANE_WIDTH, 1, 1);
+        plane.vertex(HALF_PLANE_WIDTH, 0, -HALF_PLANE_WIDTH, 1, 0);
+        plane.vertex(-HALF_PLANE_WIDTH, 0, -HALF_PLANE_WIDTH, 0, 0);
+        plane.endShape();
     }
 
     boolean isHoleClash(PVector newLocation){
@@ -150,22 +168,15 @@ public class DogDearth
         pG.rotateZ(PConstants.PI);
         pG.translate(-playerLocation.x, -playerLocation.y, -playerLocation.z);
 
-        pG.colorMode(PConstants.RGB);
-        pG.pointLight(255, 0, 0, 0, 1000, 0);
-        pG.pointLight(0, 255, 0, 100, 1000, 0);
-        pG.pointLight(0, 0, 255, 0, 1000, 100);
+        pG.colorMode(PConstants.HSB);
+        pG.directionalLight(0, 100,   120, 1f, -1, 1f);
+        pG.directionalLight(100, 100, 120, 0, -1, 0);
+        pG.directionalLight(180, 100, 120, -1f, -1, 1f);
+
+        pG.directionalLight(90, 200, 255, 0, 1, 0);
 
         pG.shape(plane);
-//        pG.shape(gazebo);
-
-//        System.out.println(playerLocation.x + " " + playerLocation.y + " " + playerLocation.z);
-        // draw grid
-        for( int n = -HALF_PLANE_WIDTH; n <= HALF_PLANE_WIDTH; n += 100){
-            pG.stroke(0);
-            pG.strokeWeight(2);
-            pG.line(n, 1, -HALF_PLANE_WIDTH, n, 1, HALF_PLANE_WIDTH);
-            pG.line(-HALF_PLANE_WIDTH, 0.01f, n, HALF_PLANE_WIDTH, 0.01f, n);
-        }
+        pG.shape(gazebo);
 
         for(Dog dog: dogs){
             dog.draw(pG);

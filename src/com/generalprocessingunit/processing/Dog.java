@@ -16,25 +16,45 @@ public class Dog
     float walkingSpeed;
     float runningSpeed;
 
-    PShape pShape;
+    PShape body;
+    PShape[] legs = new PShape[4];  // [FL, FR, RL, RR]
+    float legRotation[] = new float[4];
+    PVector legPosition[] = new PVector[4];
 
     Dog(PApplet p5, float x, float y, float z, float rx, float ry, float rz, float w, float h, float d){
-        pShape = p5.loadShape("fur_tail_dog.obj");
-
-        // this is for the specific obj loaded.
-        pShape.translate(pShape.getWidth()/2, 0, 0);
-        pShape.scale(30);
-
         hue = p5.random(30, 55);
         sat = p5.random(10, 140);
         bri = p5.random(10, 200);
         p5.colorMode(PConstants.HSB);
-        pShape.setFill(p5.color(hue, sat, bri));
+
+        body = p5.loadShape("dog_body.obj");
+
+        float yAdj = 1.2f * body.getHeight() / 2;
+        float xAdj = 0.75f * body.getWidth() / 2;
+        float zAdj = 0.6f * body.getDepth() / 2;
+
+        body.translate(0, yAdj, 0);
+        body.scale(30);
+
+        body.setFill(p5.color(hue, sat, bri));
+
+        for(int i = 0; i < 4; i++){
+            legs[i] = p5.loadShape(String.format("dog_leg_%s.obj", i));
+            legs[i].scale(30);
+            legs[i].setFill(p5.color(hue, sat, bri));
+        }
+
+        legPosition[0] = new PVector(xAdj * 0.15f, yAdj * 0.6f, zAdj );
+        legPosition[1] = new PVector(xAdj * 0.15f, yAdj * 0.6f, -zAdj);
+        legPosition[2] = new PVector(-xAdj,        yAdj * 0.6f, zAdj * 0.8f );
+        legPosition[3] = new PVector(-xAdj,        yAdj * 0.6f, -zAdj * 0.8f);
+
+
         p5.colorMode(PConstants.RGB);
 
-        w = pShape.getWidth();
-        h = pShape.getHeight();
-        d = pShape.getDepth();
+        w = body.getWidth();
+        h = body.getHeight();
+        d = body.getDepth();
         y = h/2;
 
         location = new PVector(x, y, z);
@@ -84,7 +104,16 @@ public class Dog
         pG.translate(location.x, location.y, location.z);
         pG.rotateY(orientation.y);
 
-        pG.shape(pShape);
+        pG.shape(body);
+
+
+        for(int i = 0; i < 4; i++){
+            pG.pushMatrix();
+            pG.translate(legPosition[i].x * 30, legPosition[i].y* 30, legPosition[i].z* 30);
+            pG.rotateZ(legRotation[i]);
+            pG.shape(legs[i]);
+            pG.popMatrix();
+        }
 //        p5.box(dimensions.z, dimensions.y, dimensions.x);
 
         // Head
@@ -215,6 +244,13 @@ public class Dog
             boolean res = dog.tryMove(
                     dog.locationAtActionStart.x + xCoef * speed * progress,
                     dog.locationAtActionStart.z + zCoef * speed * progress );
+
+            float numSteps = duration / 1000; // 1 step per second??
+            float s = speed / 1000f;
+            dog.legRotation[0] = s * PApplet.sin(progress * PConstants.TWO_PI * numSteps);
+            dog.legRotation[1] = s * PApplet.sin(PConstants.PI + progress * PConstants.TWO_PI * numSteps);
+            dog.legRotation[2] = s * PApplet.sin(1 + progress * PConstants.TWO_PI * numSteps);
+            dog.legRotation[3] = s * PApplet.sin(1 + PConstants.PI + progress * PConstants.TWO_PI * numSteps);
 
             if(!res){
                 dog.actionInProgress = false;
