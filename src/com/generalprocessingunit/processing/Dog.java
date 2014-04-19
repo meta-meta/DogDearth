@@ -28,26 +28,28 @@ public class Dog
         p5.colorMode(PConstants.HSB);
 
         body = p5.loadShape("dog_body.obj");
+        float scale = p5.random(1,2);
 
-        float yAdj = 1.2f * body.getHeight() / 2;
-        float xAdj = 0.75f * body.getWidth() / 2;
-        float zAdj = 0.6f * body.getDepth() / 2;
+        float yAdj = /*(scale*15f) **/ 1.2f * body.getHeight() / 2;
+        float xAdj = (scale*15f) * 0.75f * body.getWidth() / 2;
+        float zAdj = (scale*15f) * 0.6f * body.getDepth() / 2;
+
 
         body.translate(0, yAdj, 0);
-        body.scale(30);
+        body.scale(scale*15f);
 
         body.setFill(p5.color(hue, sat, bri));
 
         for(int i = 0; i < 4; i++){
             legs[i] = p5.loadShape(String.format("dog_leg_%s.obj", i));
-            legs[i].scale(30);
+            legs[i].scale(scale*15f);
             legs[i].setFill(p5.color(hue, sat, bri));
         }
 
-        legPosition[0] = new PVector(xAdj * 0.15f, yAdj * 0.6f, zAdj );
-        legPosition[1] = new PVector(xAdj * 0.15f, yAdj * 0.6f, -zAdj);
-        legPosition[2] = new PVector(-xAdj,        yAdj * 0.6f, zAdj * 0.8f );
-        legPosition[3] = new PVector(-xAdj,        yAdj * 0.6f, -zAdj * 0.8f);
+        legPosition[0] = new PVector(xAdj * 0.15f, (scale*15f) * yAdj * 0.6f, zAdj );
+        legPosition[1] = new PVector(xAdj * 0.15f, (scale*15f) * yAdj * 0.6f, -zAdj);
+        legPosition[2] = new PVector(-xAdj,        (scale*15f) *yAdj * 0.6f, zAdj * 0.8f );
+        legPosition[3] = new PVector(-xAdj,        (scale*15f) *yAdj * 0.6f, -zAdj * 0.8f);
 
 
         p5.colorMode(PConstants.RGB);
@@ -109,7 +111,7 @@ public class Dog
 
         for(int i = 0; i < 4; i++){
             pG.pushMatrix();
-            pG.translate(legPosition[i].x * 30, legPosition[i].y* 30, legPosition[i].z* 30);
+            pG.translate(legPosition[i].x, legPosition[i].y, legPosition[i].z);
             pG.rotateZ(legRotation[i]);
             pG.shape(legs[i]);
             pG.popMatrix();

@@ -10,8 +10,8 @@ import java.util.Map;
 public class DogDearth
 {
     public static final int HALF_PLANE_WIDTH = 1000;
-    public static final int NUM_DOGS = 4;
-    public static final int NUM_HOLES = 2;
+    public static final int NUM_DOGS = 30;
+    public static final int NUM_HOLES = 1;
     PShape gradient;
     PShape plane;
     PShape gazebo;
