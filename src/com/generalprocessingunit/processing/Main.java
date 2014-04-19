@@ -36,8 +36,8 @@ public class Main extends PApplet{
         dogDearth.draw2D(pG);
         pG.hint(ENABLE_DEPTH_MASK);
 
-        pG.camera(0,0,0, dogDearth.lookAt.x, dogDearth.lookAt.y, dogDearth.lookAt.z, 0, 1f, 0);
-//        pG.camera(dogDearth.playerLocation.x, dogDearth.playerLocation.y, dogDearth.playerLocation.z, dogDearth.playerLocation.x + dogDearth.lookAt.x, dogDearth.playerLocation.y + dogDearth.lookAt.y, dogDearth.playerLocation.z + dogDearth.lookAt.z, 0, -1f, 0);
+        pG.camera(0,0,0, dogDearth.player.lookAt.x, dogDearth.player.lookAt.y, dogDearth.player.lookAt.z, 0, 1f, 0);
+//        pG.camera(dogDearth.playerLocation.x, dogDearth.playerLocation.y, dogDearth.playerLocation.z, dogDearth.playerLocation.x + dogDearth.player.lookAt.x, dogDearth.playerLocation.y + dogDearth.player.lookAt.y, dogDearth.playerLocation.z + dogDearth.player.lookAt.z, 0, -1f, 0);
         pG.perspective(PI / 2.8f, width / height, 0.1f, 10000f);
 
         dogDearth.drawScene(pG, this);

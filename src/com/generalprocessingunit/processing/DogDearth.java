@@ -30,8 +30,8 @@ public class DogDearth
         keys.put(PConstants.RIGHT, false);
     }
 
-    PVector playerLocation = new PVector(0, 250, -1000);
-    PVector lookAt = new PVector(0, -20, 100);
+    Player player = new Player(new PVector(0, 250, -1000));
+
 
     void setup(PApplet p5){
         gradient = p5.createShape();
@@ -143,20 +143,20 @@ public class DogDearth
 
         // move the player location according to keys pressed
         if(keys.get(PConstants.UP)){
-            playerLocation.z += 15f;
+            player.location.z += 15f;
         }
         if(keys.get(PConstants.DOWN)){
-            playerLocation.z -= 15f;
+            player.location.z -= 15f;
         }
         if(keys.get(PConstants.LEFT)){
-            playerLocation.x -= 15f;
+            player.location.x -= 15f;
         }
         if(keys.get(PConstants.RIGHT)){
-            playerLocation.x += 15f;
+            player.location.x += 15f;
         }
         if(p5.mousePressed){
-            lookAt = Rotation.rotatePVectorY((p5.mouseX - mouseXAtClick) * 0.0001f, lookAt);
-            lookAt = Rotation.rotatePVectorX((p5.mouseY - mouseYAtClick) * 0.0001f, lookAt);
+            player.lookAt = Rotation.rotatePVectorY((p5.mouseX - mouseXAtClick) * 0.0001f, player.lookAt);
+            player.lookAt = Rotation.rotatePVectorX((p5.mouseY - mouseYAtClick) * 0.0001f, player.lookAt);
         }
     }
 
@@ -190,6 +190,7 @@ public class DogDearth
             pG.popMatrix();
         }
 
+        player.draw(pG);
 
 //        drawHelperBoxFeet(pG);
     }
