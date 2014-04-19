@@ -166,7 +166,7 @@ public class DogDearth
 
     void drawScene(PGraphics pG, PApplet p5){
         pG.rotateZ(PConstants.PI);
-        pG.translate(-playerLocation.x, -playerLocation.y, -playerLocation.z);
+        pG.translate(-player.location.x, -player.location.y, -player.location.z);
 
         pG.colorMode(PConstants.HSB);
         pG.directionalLight(0, 100,   120, 1f, -1, 1f);
