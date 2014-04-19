@@ -16,6 +16,7 @@ public class Dog
     float walkingSpeed;
     float runningSpeed;
 
+    static PShape defaultBody;
     PShape body;
     PShape[] legs = new PShape[4];  // [FL, FR, RL, RR]
     float legRotation[] = new float[4];
@@ -27,7 +28,11 @@ public class Dog
         bri = p5.random(10, 200);
         p5.colorMode(PConstants.HSB);
 
-        body = p5.loadShape("dog_body.obj");
+        if(null == defaultBody) {
+            defaultBody = p5.loadShape("dog_body.obj");
+        }
+
+        body = defaultBody;
         float scale = p5.random(1,2);
 
         float yAdj = /*(scale*15f) **/ 1.2f * body.getHeight() / 2;
