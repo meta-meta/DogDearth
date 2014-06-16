@@ -73,6 +73,15 @@ public class DogDearth
         }
     }
 
+    private boolean isHoleClash(PVector newLocation){
+        for(Hole hole: holes){
+            if(PVector.dist(hole.location, newLocation) < 2*Hole.r){
+                return true;
+            }
+        }
+        return false;
+    }
+
     private void createDogs(PApplet p5) {
         for (int i = 0; i < NUM_DOGS; i++) {
             float h = p5.random(150, 200);
@@ -101,6 +110,7 @@ public class DogDearth
     }
 
     private void createSky(PApplet p5) {
+        //TODO: replace with a skybox or textured sphere
         sky = p5.createShape();
         sky.beginShape();
         sky.fill(127);
@@ -139,16 +149,13 @@ public class DogDearth
         plane.endShape();
     }
 
-    boolean isHoleClash(PVector newLocation){
-        for(Hole hole: holes){
-            if(PVector.dist(hole.location, newLocation) < 2*Hole.r){
-                return true;
-            }
-        }
-        return false;
+    void beforeDraw(PApplet p5){
+        updateDogs(p5);
+
+        updatePlayerLocation(p5);
     }
 
-    void beforeDraw(PApplet p5){
+    private void updateDogs(PApplet p5) {
         for(Dog dog: dogs){
             dog.doAction(p5);
         }
@@ -179,7 +186,9 @@ public class DogDearth
         for(Dog dog: deadDogs){
             dogs.remove(dog);
         }
+    }
 
+    private void updatePlayerLocation(PApplet p5) {
         // move the player location according to keys pressed
         if(keys.get(PConstants.UP)){
             player.location.z += 15f;
@@ -204,16 +213,25 @@ public class DogDearth
     }
 
     void drawScene(PGraphics pG, PApplet p5){
-        pG.rotateZ(PConstants.PI);
+        pG.rotateZ(PConstants.PI); // TODO: the scene is upside down. figure out why
         pG.translate(-player.location.x, -player.location.y, -player.location.z);
 
+        /*
+            Lights
+          */
         pG.colorMode(PConstants.HSB);
+
+        // RGB sky lights
         pG.directionalLight(0, 100,   120, 1f, -1, 1f);
         pG.directionalLight(100, 100, 120, 0, -1, 0);
         pG.directionalLight(180, 100, 120, -1f, -1, 1f);
 
+        // Green floor light
         pG.directionalLight(90, 200, 255, 0, 1, 0);
 
+        /*
+            Entities
+         */
         pG.shape(plane);
         pG.shape(gazebo);
 
