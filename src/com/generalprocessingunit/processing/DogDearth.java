@@ -9,19 +9,32 @@ import java.util.Map;
 
 public class DogDearth
 {
+    /*
+        Constants
+     */
     public static final int HALF_PLANE_WIDTH = 1000;
     public static final int NUM_DOGS = 30;
     public static final int NUM_HOLES = 1;
-    PShape gradient;
+
+
+    /*
+        Game Entities
+     */
+
+    // Environment
+    PShape sky;
     PShape plane;
     PShape gazebo;
 
+    // Characters
     List<Dog> dogs = new ArrayList<>();
     List<Hole> holes = new ArrayList<>();
+    Player player = new Player(new PVector(0, 250, -1000));
 
-    int mouseXAtClick = 0;
-    int mouseYAtClick = 0;
 
+    /*
+        Keyboard state
+     */
     static Map<Integer, Boolean> keys = new HashMap<>();
     static {
         keys.put(PConstants.UP, false);
@@ -30,37 +43,24 @@ public class DogDearth
         keys.put(PConstants.RIGHT, false);
     }
 
-    Player player = new Player(new PVector(0, 250, -1000));
+    // Mouse State TODO: create robust 3d control class for mouse
+    int mouseXAtClick = 0;
+    int mouseYAtClick = 0;
 
 
     void setup(PApplet p5){
-        gradient = p5.createShape();
-        gradient.beginShape();
-        gradient.fill(127);
-        gradient.vertex(-p5.width*2, -p5.height*2);
-        gradient.vertex(p5.width*4, -p5.height*2);
-        gradient.fill(0);
-        gradient.vertex(p5.width*4, p5.height*4);
-        gradient.vertex(-p5.width*2, p5.height*4);
-        gradient.endShape();
+        createSky(p5);
 
         createCartesianPlane(p5);
 
-        gazebo=p5.loadShape("gazebo.obj");
-        gazebo.translate(0, 80, 0);
-        gazebo.rotateY(PConstants.PI);
-//        gazebo.translate(gazebo.getWidth()/2, 0, 0);
-        gazebo.scale(300);
-        gazebo.setFill(p5.color(0,0,255));
+        createGazebo(p5);
 
-        for(int i = 0; i < NUM_DOGS; i++){
-            float h = p5.random(150, 200);
-            dogs.add(new Dog( p5,
-                    p5.random(-HALF_PLANE_WIDTH, HALF_PLANE_WIDTH), h/2 + 1, p5.random(-HALF_PLANE_WIDTH, HALF_PLANE_WIDTH),
-                    0, ((int)p5.random(4))*PApplet.HALF_PI, 0,
-                    p5.random(20, 50), h, p5.random(50, 150)));
-        }
+        createDogs(p5);
 
+        createHoles(p5);
+    }
+
+    private void createHoles(PApplet p5) {
         int holeBound = HALF_PLANE_WIDTH - Hole.r;
         for(int i = 0; i < NUM_HOLES; i++){
             PVector newHoleLoc = new PVector();
@@ -71,6 +71,45 @@ public class DogDearth
 
             holes.add(new Hole(p5, newHoleLoc.x, newHoleLoc.z));
         }
+    }
+
+    private void createDogs(PApplet p5) {
+        for (int i = 0; i < NUM_DOGS; i++) {
+            float h = p5.random(150, 200);
+
+            p5.colorMode(PConstants.HSB);
+            int color = p5.color(p5.random(30, 55), p5.random(10, 140), p5.random(10, 200));
+            p5.colorMode(PConstants.RGB);
+
+            Dog dog = new Dog(p5,
+                p5.random(-HALF_PLANE_WIDTH, HALF_PLANE_WIDTH), h / 2 + 1, p5.random(-HALF_PLANE_WIDTH, HALF_PLANE_WIDTH),
+                0, ((int) p5.random(4)) * PApplet.HALF_PI, 0,
+                p5.random(20, 50), h, p5.random(50, 150),
+                color
+            );
+            dogs.add(dog);
+        }
+    }
+
+    private void createGazebo(PApplet p5) {
+        gazebo=p5.loadShape("gazebo.obj");
+        gazebo.translate(0, 80, 0);
+        gazebo.rotateY(PConstants.PI);
+//        gazebo.translate(gazebo.getWidth()/2, 0, 0);
+        gazebo.scale(300);
+        gazebo.setFill(p5.color(0,0,255));
+    }
+
+    private void createSky(PApplet p5) {
+        sky = p5.createShape();
+        sky.beginShape();
+        sky.fill(127);
+        sky.vertex(-p5.width * 2, -p5.height * 2);
+        sky.vertex(p5.width * 4, -p5.height * 2);
+        sky.fill(0);
+        sky.vertex(p5.width * 4, p5.height * 4);
+        sky.vertex(-p5.width * 2, p5.height * 4);
+        sky.endShape();
     }
 
     private void createCartesianPlane(PApplet p5) {
@@ -161,7 +200,7 @@ public class DogDearth
     }
 
     void draw2D(PGraphics pG){
-       pG.shape(gradient);
+       pG.shape(sky);
     }
 
     void drawScene(PGraphics pG, PApplet p5){

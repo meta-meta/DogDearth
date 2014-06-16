@@ -11,7 +11,7 @@ public class Dog
     PVector location;
     PVector orientation;
     PVector dimensions, lyingDimensions, sittingDimensions, standingDimensions;
-    float hue, sat, bri;
+    int color;
     float speed;
     float walkingSpeed;
     float runningSpeed;
@@ -21,12 +21,21 @@ public class Dog
     float legRotation[] = new float[4];
     PVector legPosition[] = new PVector[4];
 
-    Dog(PApplet p5, float x, float y, float z, float rx, float ry, float rz, float w, float h, float d){
-        hue = p5.random(30, 55);
-        sat = p5.random(10, 140);
-        bri = p5.random(10, 200);
-        p5.colorMode(PConstants.HSB);
-
+    /**
+     *
+     * @param p5 reference to PApplet
+     * @param x x-coord of dog location
+     * @param y y-coord of dog location
+     * @param z z-coord of dog location
+     * @param rx rotation about x-axis
+     * @param ry rotation about y-axis
+     * @param rz rotation about z-axis
+     * @param w width
+     * @param h height
+     * @param d depth
+     * @param color color of dog
+     */
+    Dog(PApplet p5, float x, float y, float z, float rx, float ry, float rz, float w, float h, float d, int color){
         body = p5.loadShape("dog_body.obj");
         float scale = p5.random(1,2);
 
@@ -38,12 +47,13 @@ public class Dog
         body.translate(0, yAdj, 0);
         body.scale(scale*15f);
 
-        body.setFill(p5.color(hue, sat, bri));
+        this.color = color;
+        body.setFill(color);
 
         for(int i = 0; i < 4; i++){
             legs[i] = p5.loadShape(String.format("dog_leg_%s.obj", i));
             legs[i].scale(scale*15f);
-            legs[i].setFill(p5.color(hue, sat, bri));
+            legs[i].setFill(color);
         }
 
         legPosition[0] = new PVector(xAdj * 0.15f, (scale*15f) * yAdj * 0.6f, zAdj );
@@ -51,8 +61,6 @@ public class Dog
         legPosition[2] = new PVector(-xAdj,        (scale*15f) *yAdj * 0.6f, zAdj * 0.8f );
         legPosition[3] = new PVector(-xAdj,        (scale*15f) *yAdj * 0.6f, -zAdj * 0.8f);
 
-
-        p5.colorMode(PConstants.RGB);
 
         w = body.getWidth();
         h = body.getHeight();
@@ -96,7 +104,7 @@ public class Dog
 
     void draw(PGraphics pG){
         pG.colorMode(PConstants.HSB);
-        pG.fill(hue, sat, bri);
+        pG.fill(color);
         pG.stroke(200);
         pG.colorMode(PConstants.RGB);
 
