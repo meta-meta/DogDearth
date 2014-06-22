@@ -132,7 +132,7 @@ public class Dog
 
     boolean tryMove(float x, float z){
         // TODO: HALF_PLANE_WIDTH decides the coordinates of the turf, and the turf is really what should be referenced here
-        if(x > DogDearth.HALF_PLANE_WIDTH || x < -DogDearth.HALF_PLANE_WIDTH || z > DogDearth.HALF_PLANE_WIDTH || z < -DogDearth.HALF_PLANE_WIDTH){
+        if((x + dimensions.z / 2) > DogDearth.HALF_PLANE_WIDTH || (x - dimensions.z / 2) < -DogDearth.HALF_PLANE_WIDTH || (z + dimensions.z / 2) > DogDearth.HALF_PLANE_WIDTH || (z - dimensions.z / 2) < -DogDearth.HALF_PLANE_WIDTH){
             return false;
         } else {
             location.x = x;
