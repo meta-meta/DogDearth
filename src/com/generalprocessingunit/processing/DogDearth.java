@@ -74,8 +74,8 @@ public class DogDearth
     }
 
     private boolean isHoleClash(PVector newLocation){
-        for(Hole hole: holes){
-            if(PVector.dist(hole.location, newLocation) < 2*Hole.r){
+        for (Hole hole : holes) {
+            if (PVector.dist(hole.location, newLocation) < 2 * Hole.r) {
                 return true;
             }
         }
@@ -160,25 +160,25 @@ public class DogDearth
             dog.doAction(p5);
         }
 
-//        System.out.println(p5.frameRate);
         List<Dog> deadDogs = new ArrayList<>();
         for(Dog dog: dogs){
+            PVector a = dog.getPawDriverSideFront();
+            PVector b = dog.getPawPassengerSideFront();
+            PVector c = dog.getPawDriverSideRear();
+            PVector d = dog.getPawPassengerSideRear();
+
             for(Hole hole: holes){
-                PVector v = dog.getPawDriverSideFront();
-                PVector w = dog.getPawPassengerSideFront();
-                PVector x = dog.getPawDriverSideRear();
-                PVector y = dog.getPawPassengerSideRear();
 
                 if (
-                        PVector.dist(v,hole.location) < Hole.r && PVector.dist(w,hole.location) < Hole.r ||
-                                PVector.dist(x,hole.location) < Hole.r && PVector.dist(y,hole.location) < Hole.r ||
-                                PVector.dist(v,hole.location) < Hole.r && PVector.dist(x,hole.location) < Hole.r ||
-                                PVector.dist(w,hole.location) < Hole.r && PVector.dist(y,hole.location) < Hole.r
-                        ){
-                    if(hole.active){
+                        PVector.dist(a, hole.location) < Hole.r && PVector.dist(b, hole.location) < Hole.r ||
+                        PVector.dist(c, hole.location) < Hole.r && PVector.dist(d, hole.location) < Hole.r ||
+                        PVector.dist(a, hole.location) < Hole.r && PVector.dist(c, hole.location) < Hole.r ||
+                        PVector.dist(b, hole.location) < Hole.r && PVector.dist(d, hole.location) < Hole.r
+                ) {
+                    if (hole.active) {
                         hole.millisAtBelch = p5.millis();
+                        deadDogs.add(dog);
                     }
-                    deadDogs.add(dog);
                 }
             }
         }
@@ -249,42 +249,8 @@ public class DogDearth
 
         player.draw(pG);
 
-//        drawHelperBoxFeet(pG);
+        Helper.drawBoxFeet(pG, dogs);
     }
 
-    private void drawHelperBoxFeet(PGraphics pG)
-    {
-        for(Dog dog: dogs){
-            for(Hole hole: holes){
-                pG.noFill();
-                PVector v = dog.getPawDriverSideFront();
-                pG.pushMatrix();
-                pG.translate(v.x, v.y, v.z);
-                pG.stroke(255, 0, 0);
-                pG.box(20);
-                pG.popMatrix();
 
-                PVector w = dog.getPawPassengerSideFront();
-                pG.pushMatrix();
-                pG.translate(w.x, w.y, w.z);
-                pG.stroke(255, 255, 0);
-                pG.box(20);
-                pG.popMatrix();
-
-                PVector x = dog.getPawDriverSideRear();
-                pG.pushMatrix();
-                pG.translate(x.x, x.y, x.z);
-                pG.stroke(0, 255, 0);
-                pG.box(20);
-                pG.popMatrix();
-
-                PVector y = dog.getPawPassengerSideRear();
-                pG.pushMatrix();
-                pG.translate(y.x, y.y, y.z);
-                pG.stroke(0, 0, 255);
-                pG.box(20);
-                pG.popMatrix();
-            }
-        }
-    }
 }

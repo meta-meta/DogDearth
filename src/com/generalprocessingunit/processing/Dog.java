@@ -12,7 +12,7 @@ public class Dog
     PVector orientation;
     PVector dimensions, lyingDimensions, sittingDimensions, standingDimensions;
     int color;
-    float speed;
+    float baseSpeed;
     float walkingSpeed;
     float runningSpeed;
 
@@ -25,7 +25,6 @@ public class Dog
      *
      * @param p5 reference to PApplet
      * @param x x-coord of dog location
-     * @param y y-coord of dog location
      * @param z z-coord of dog location
      * @param rx rotation about x-axis
      * @param ry rotation about y-axis
@@ -35,24 +34,29 @@ public class Dog
      * @param d depth
      * @param color color of dog
      */
-    Dog(PApplet p5, float x, float y, float z, float rx, float ry, float rz, float w, float h, float d, int color){
+    Dog(PApplet p5, float x, float z, float rx, float ry, float rz, float w, float h, float d, int color){
+        /*
+            Load and position dog body
+         */
         body = p5.loadShape("dog_body.obj");
         float scale = p5.random(1,2);
 
         float yAdj = /*(scale*15f) **/ 1.2f * body.getHeight() / 2;
-        float xAdj = (scale*15f) * 0.75f * body.getWidth() / 2;
-        float zAdj = (scale*15f) * 0.6f * body.getDepth() / 2;
-
+        float xAdj = (scale * 15f) * 0.75f * body.getWidth() / 2;
+        float zAdj = (scale * 15f) * 0.6f * body.getDepth() / 2;
 
         body.translate(0, yAdj, 0);
-        body.scale(scale*15f);
+        body.scale(scale * 15f);
 
         this.color = color;
         body.setFill(color);
 
-        for(int i = 0; i < 4; i++){
+        /*
+            Load and position dog legs
+         */
+        for (int i = 0; i < 4; i++) {
             legs[i] = p5.loadShape(String.format("dog_leg_%s.obj", i));
-            legs[i].scale(scale*15f);
+            legs[i].scale(scale * 15f);
             legs[i].setFill(color);
         }
 
@@ -62,10 +66,13 @@ public class Dog
         legPosition[3] = new PVector(-xAdj,        (scale*15f) *yAdj * 0.6f, -zAdj * 0.8f);
 
 
+        /*
+            Set location, orientation and dimensions
+         */
         w = body.getWidth();
         h = body.getHeight();
         d = body.getDepth();
-        y = h/2;
+        float y = h/2;
 
         location = new PVector(x, y, z);
         orientation = new PVector(rx, ry, rz);
@@ -75,29 +82,29 @@ public class Dog
         sittingDimensions = new PVector(w, h * 1.5f, d * 0.7f);
         lyingDimensions = new PVector(w, h / 2, d);
 
-        speed = p5.random(0.05f, 1.5f);
-        walkingSpeed = 300 * speed;
-        runningSpeed = 1000 * speed;
+        baseSpeed = p5.random(0.05f, 1.5f);
+        walkingSpeed = 300 * baseSpeed;
+        runningSpeed = 1000 * baseSpeed;
     }
 
     PVector getPawDriverSideFront(){
-        PVector v = Rotation.rotatePVectorY(orientation.y, new PVector(dimensions.x/2 - 30, 0, dimensions.z/2 - 10));
+        PVector v = Rotation.rotatePVectorY(orientation.y, legPosition[0]);
         v.add(location.x, 0, location.z);
         return v;
     }
     PVector getPawPassengerSideFront(){
-        PVector v = Rotation.rotatePVectorY(orientation.y, new PVector(dimensions.x/2 - 30, 0, -dimensions.z/2 + 10));
+        PVector v = Rotation.rotatePVectorY(orientation.y, legPosition[1]);
         v.add(location.x, 0, location.z);
         return v;
     }
 
     PVector getPawDriverSideRear(){
-        PVector v = Rotation.rotatePVectorY(orientation.y, new PVector(-dimensions.x/2 + 45, 0, dimensions.z/2 - 10));
+        PVector v = Rotation.rotatePVectorY(orientation.y, legPosition[2]);
         v.add(location.x, 0, location.z);
         return v;
     }
     PVector getPawPassengerSideRear(){
-        PVector v = Rotation.rotatePVectorY(orientation.y, new PVector(-dimensions.x/2 + 45, 0, -dimensions.z/2 + 10));
+        PVector v = Rotation.rotatePVectorY(orientation.y, legPosition[3]);
         v.add(location.x, 0, location.z);
         return v;
     }
