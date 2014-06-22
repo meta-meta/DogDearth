@@ -17,9 +17,34 @@ public class Dog
     float runningSpeed;
 
     PShape body;
-    PShape[] legs = new PShape[4];  // [FL, FR, RL, RR]
-    float legRotation[] = new float[4];
-    PVector legPosition[] = new PVector[4];
+
+    Leg[] legs = new Leg[4];
+
+    public class Leg
+    {
+        float rotation;
+        PVector position;
+        PShape model;
+
+        Leg(PShape model, PVector position) {
+            this.model = model;
+            this.position = position;
+        }
+
+        public PVector getGlobalLocation() {
+            PVector v = Rotation.rotatePVectorY(orientation.y, position);
+            v.add(location.x, 0, location.z);
+            return v;
+        }
+
+        public void draw(PGraphics pG) {
+            pG.pushMatrix();
+            pG.translate(position.x, position.y, position.z);
+            pG.rotateZ(rotation);
+            pG.shape(model);
+            pG.popMatrix();
+        }
+    }
 
     /**
      *
@@ -54,16 +79,17 @@ public class Dog
         /*
             Load and position dog legs
          */
+        PShape[] legModels = new PShape[4];
         for (int i = 0; i < 4; i++) {
-            legs[i] = p5.loadShape(String.format("dog_leg_%s.obj", i));
-            legs[i].scale(scale * 15f);
-            legs[i].setFill(color);
+            legModels[i] = p5.loadShape(String.format("dog_leg_%s.obj", i));
+            legModels[i].scale(scale * 15f);
+            legModels[i].setFill(color);
         }
 
-        legPosition[0] = new PVector(xAdj * 0.15f, (scale*15f) * yAdj * 0.6f, zAdj );
-        legPosition[1] = new PVector(xAdj * 0.15f, (scale*15f) * yAdj * 0.6f, -zAdj);
-        legPosition[2] = new PVector(-xAdj,        (scale*15f) *yAdj * 0.6f, zAdj * 0.8f );
-        legPosition[3] = new PVector(-xAdj,        (scale*15f) *yAdj * 0.6f, -zAdj * 0.8f);
+        legs[0] = new Leg(legModels[0], new PVector(xAdj * 0.15f, (scale*15f) * yAdj * 0.6f, zAdj));
+        legs[1] = new Leg(legModels[1], new PVector(xAdj * 0.15f, (scale*15f) * yAdj * 0.6f, -zAdj));
+        legs[2] = new Leg(legModels[2], new PVector(-xAdj,        (scale*15f) * yAdj * 0.6f, zAdj * 0.8f));
+        legs[3] = new Leg(legModels[3], new PVector(-xAdj,        (scale*15f) * yAdj * 0.6f, -zAdj * 0.8f));
 
 
         /*
@@ -87,34 +113,8 @@ public class Dog
         runningSpeed = 1000 * baseSpeed;
     }
 
-    PVector getPawDriverSideFront(){
-        PVector v = Rotation.rotatePVectorY(orientation.y, legPosition[0]);
-        v.add(location.x, 0, location.z);
-        return v;
-    }
-    PVector getPawPassengerSideFront(){
-        PVector v = Rotation.rotatePVectorY(orientation.y, legPosition[1]);
-        v.add(location.x, 0, location.z);
-        return v;
-    }
-
-    PVector getPawDriverSideRear(){
-        PVector v = Rotation.rotatePVectorY(orientation.y, legPosition[2]);
-        v.add(location.x, 0, location.z);
-        return v;
-    }
-    PVector getPawPassengerSideRear(){
-        PVector v = Rotation.rotatePVectorY(orientation.y, legPosition[3]);
-        v.add(location.x, 0, location.z);
-        return v;
-    }
 
     void draw(PGraphics pG){
-        pG.colorMode(PConstants.HSB);
-        pG.fill(color);
-        pG.stroke(200);
-        pG.colorMode(PConstants.RGB);
-
         pG.pushMatrix();
 
         // Body
@@ -123,19 +123,9 @@ public class Dog
 
         pG.shape(body);
 
-
-        for(int i = 0; i < 4; i++){
-            pG.pushMatrix();
-            pG.translate(legPosition[i].x, legPosition[i].y, legPosition[i].z);
-            pG.rotateZ(legRotation[i]);
-            pG.shape(legs[i]);
-            pG.popMatrix();
+        for(Leg leg: legs) {
+            leg.draw(pG);
         }
-//        p5.box(dimensions.z, dimensions.y, dimensions.x);
-
-        // Head
-//        p5.translate(dimensions.z/2, dimensions.y/2, 0);
-//        p5.box(standingDimensions.x * 1.3f);
 
         pG.popMatrix();
     }
@@ -264,10 +254,10 @@ public class Dog
 
             float numSteps = duration / 1000; // 1 step per second??
             float s = speed / 1000f;
-            dog.legRotation[0] = s * PApplet.sin(progress * PConstants.TWO_PI * numSteps);
-            dog.legRotation[1] = s * PApplet.sin(PConstants.PI + progress * PConstants.TWO_PI * numSteps);
-            dog.legRotation[2] = s * PApplet.sin(1 + progress * PConstants.TWO_PI * numSteps);
-            dog.legRotation[3] = s * PApplet.sin(1 + PConstants.PI + progress * PConstants.TWO_PI * numSteps);
+            dog.legs[0].rotation = s * PApplet.sin(progress * PConstants.TWO_PI * numSteps);
+            dog.legs[1].rotation = s * PApplet.sin(PConstants.PI + progress * PConstants.TWO_PI * numSteps);
+            dog.legs[2].rotation = s * PApplet.sin(1 + progress * PConstants.TWO_PI * numSteps);
+            dog.legs[3].rotation = s * PApplet.sin(1 + PConstants.PI + progress * PConstants.TWO_PI * numSteps);
 
             if(!res){
                 dog.actionInProgress = false;

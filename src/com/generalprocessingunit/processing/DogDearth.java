@@ -74,11 +74,16 @@ public class DogDearth
     }
 
     private boolean isHoleClash(PVector newLocation){
+        if (PVector.dist(new PVector(), newLocation) < 2 * Hole.r) {
+            return true;
+        }
+
         for (Hole hole : holes) {
             if (PVector.dist(hole.location, newLocation) < 2 * Hole.r) {
                 return true;
             }
         }
+
         return false;
     }
 
@@ -91,7 +96,8 @@ public class DogDearth
             p5.colorMode(PConstants.RGB);
 
             Dog dog = new Dog(p5,
-                p5.random(-HALF_PLANE_WIDTH, HALF_PLANE_WIDTH), h / 2 + 1, p5.random(-HALF_PLANE_WIDTH, HALF_PLANE_WIDTH),
+//                p5.random(-HALF_PLANE_WIDTH, HALF_PLANE_WIDTH), p5.random(-HALF_PLANE_WIDTH, HALF_PLANE_WIDTH),
+                0, 0,
                 0, ((int) p5.random(4)) * PApplet.HALF_PI, 0,
                 p5.random(20, 50), h, p5.random(50, 150),
                 color
@@ -162,10 +168,10 @@ public class DogDearth
 
         List<Dog> deadDogs = new ArrayList<>();
         for(Dog dog: dogs){
-            PVector a = dog.getPawDriverSideFront();
-            PVector b = dog.getPawPassengerSideFront();
-            PVector c = dog.getPawDriverSideRear();
-            PVector d = dog.getPawPassengerSideRear();
+            PVector a = dog.legs[0].getGlobalLocation();
+            PVector b = dog.legs[1].getGlobalLocation();
+            PVector c = dog.legs[2].getGlobalLocation();
+            PVector d = dog.legs[3].getGlobalLocation();
 
             for(Hole hole: holes){
 
