@@ -10,7 +10,7 @@ public class Dog
 {
     PVector location;
     PVector orientation;
-    PVector dimensions, lyingDimensions, sittingDimensions, standingDimensions;
+    PVector dimensions;
     int color;
     float baseSpeed;
     float walkingSpeed;
@@ -23,6 +23,7 @@ public class Dog
     public class Leg
     {
         float rotation;
+        float rotationAtActionStart;
         PVector position;
         PShape model;
 
@@ -102,11 +103,7 @@ public class Dog
 
         location = new PVector(x, y, z);
         orientation = new PVector(rx, ry, rz);
-
         dimensions = new PVector(w, h, d);
-        standingDimensions = new PVector(w, h, d);
-        sittingDimensions = new PVector(w, h * 1.5f, d * 0.7f);
-        lyingDimensions = new PVector(w, h / 2, d);
 
         baseSpeed = p5.random(0.05f, 1.5f);
         walkingSpeed = 300 * baseSpeed;
@@ -175,8 +172,7 @@ public class Dog
         SIT         (500, State.SITTING),
         STAND       (600, State.STANDING),
         TURN        (500, State.STANDING),
-        LIE_DOWN    (800, State.LYING),
-        STAY        (1000);
+        LIE_DOWN    (800, State.LYING);
 
         int duration;
         State endState;
@@ -190,16 +186,16 @@ public class Dog
             this.endState = endState;
         }
 
-        void doAction(int millis, Dog dog){
+        void execute(PApplet p5, int millis, Dog dog){
             float progress = (millis/(float)duration); // 0 - 1.0
 
             switch (this) {
                 case WALK: {
-                    move(dog, dog.walkingSpeed, progress);
+                    move(p5, dog, dog.walkingSpeed, progress);
                     break;
                 }
                 case RUN: {
-                    move(dog, dog.runningSpeed, progress);
+                    move(p5, dog, dog.runningSpeed, progress);
                     break;
                 }
                 case TURN: {
@@ -214,29 +210,24 @@ public class Dog
                 }
                 case LIE_DOWN: {
                     if(State.SITTING == dog.currentState){
-                        changePose(dog, progress, dog.sittingDimensions, dog.lyingDimensions);
+                        changePose(dog, progress);
                     } else if(State.STANDING == dog.currentState){
-                        changePose(dog, progress, dog.standingDimensions, dog.lyingDimensions);
+                        changePose(dog, progress);
                     }
                     break;
                 }
                 case SIT: {
                     if(State.LYING == dog.currentState){
-                        changePose(dog, progress, dog.lyingDimensions, dog.sittingDimensions);
+                        changePose(dog, progress);
                     } else if(State.STANDING == dog.currentState){
-                        changePose(dog, progress, dog.standingDimensions, dog.sittingDimensions);
+                        changePose(dog, progress);
                     }
                     break;
                 }
                 case STAND: {
-                    if(State.LYING == dog.currentState){
-                        changePose(dog, progress, dog.lyingDimensions, dog.standingDimensions);
-                    } else if(State.SITTING == dog.currentState){
-                        changePose(dog, progress, dog.sittingDimensions, dog.standingDimensions);
+                    for (Leg leg : dog.legs) {
+                        leg.rotation = tween(leg.rotationAtActionStart, 0, progress);
                     }
-                    break;
-                }
-                case STAY: {
                     break;
                 }
                 default:
@@ -244,31 +235,30 @@ public class Dog
             }
         }
 
-        private void move(Dog dog, float speed, float progress){
-            float   xCoef = PApplet.cos(-dog.orientation.y),
-                    zCoef = PApplet.sin(-dog.orientation.y);
+        private void move(PApplet p5, Dog dog, float speed, float progress){
             int   xCoef = PApplet.round(PApplet.cos(-dog.orientation.y)),
                   zCoef = PApplet.round(PApplet.sin(-dog.orientation.y));
 
-            boolean res = dog.tryMove(
-                    dog.locationAtActionStart.x + xCoef * speed * progress,
-                    dog.locationAtActionStart.z + zCoef * speed * progress );
+            if (dog.tryMove(dog.locationAtActionStart.x + xCoef * speed * progress,
+                            dog.locationAtActionStart.z + zCoef * speed * progress )) {
+                rotateLegs(dog, speed, progress);
+            } else {
+                dog.forceNextAction(p5, Action.STAND);
+            }
+        }
 
+        private void rotateLegs(Dog dog, float speed, float progress) {
             float numSteps = duration / 1000; // 1 step per second??
             float s = speed / 1000f;
+
             dog.legs[0].rotation = s * PApplet.sin(progress * PConstants.TWO_PI * numSteps);
             dog.legs[1].rotation = s * PApplet.sin(PConstants.PI + progress * PConstants.TWO_PI * numSteps);
             dog.legs[2].rotation = s * PApplet.sin(1 + progress * PConstants.TWO_PI * numSteps);
             dog.legs[3].rotation = s * PApplet.sin(1 + PConstants.PI + progress * PConstants.TWO_PI * numSteps);
-
-            if(!res){
-                dog.actionInProgress = false;
-            }
         }
 
-        private void changePose(Dog dog, float progress, PVector initial, PVector goal){
-            dog.dimensions = tween(initial, goal, progress);
-            dog.location.y = dog.dimensions.y / 2;
+        private void changePose(Dog dog, float progress){
+
         }
 
         private PVector tween(PVector initial, PVector goal, float progress){
@@ -305,25 +295,34 @@ public class Dog
         if(p5.millis() - millisAtActionStart > currentAction.duration){
             actionInProgress = false;
         } else {
-            currentAction.doAction(p5.millis() - millisAtActionStart, this);
+            currentAction.execute(p5, p5.millis() - millisAtActionStart, this);
         }
     }
 
     void decideNextAction(PApplet p5){
-        if(Action.STAY != currentAction){
-            currentState = currentAction.endState;
-        }
-        millisAtActionStart = p5.millis();
-        locationAtActionStart = new PVector(location.x, location.y, location.z);
-        orientationAtActionStart = new PVector(orientation.x, orientation.y, orientation.z);
-        turnRight = (int)p5.random(2) == 1;
+        initAction(p5);
 
         Action[] possibleActions = currentState.possibleActions;
         if(p5.random(1) > currentState.probabilityMaintainState){
             currentAction = possibleActions[(int)p5.random(possibleActions.length)];
-        } else {
-            currentAction = Action.STAY;
         }
+    }
+
+    private void initAction(PApplet p5) {
+        currentState = currentAction.endState;
+
+        millisAtActionStart = p5.millis();
+        locationAtActionStart = new PVector(location.x, location.y, location.z);
+        orientationAtActionStart = new PVector(orientation.x, orientation.y, orientation.z);
+        for (Leg leg : legs) {
+            leg.rotationAtActionStart = leg.rotation;
+        }
+        turnRight = (int)p5.random(2) == 1;
         actionInProgress = true;
+    }
+
+    void forceNextAction(PApplet p5, Action action){
+        initAction(p5);
+        currentAction = action;
     }
 }
