@@ -247,6 +247,8 @@ public class Dog
         private void move(Dog dog, float speed, float progress){
             float   xCoef = PApplet.cos(-dog.orientation.y),
                     zCoef = PApplet.sin(-dog.orientation.y);
+            int   xCoef = PApplet.round(PApplet.cos(-dog.orientation.y)),
+                  zCoef = PApplet.round(PApplet.sin(-dog.orientation.y));
 
             boolean res = dog.tryMove(
                     dog.locationAtActionStart.x + xCoef * speed * progress,
