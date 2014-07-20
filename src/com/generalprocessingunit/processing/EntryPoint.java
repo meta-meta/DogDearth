@@ -64,5 +64,8 @@ public class EntryPoint extends PApplet{
     public void keyReleased(KeyEvent e)
     {
         DogDearth.keys.put(e.getKeyCode(), false);
+        if(e.getKeyCode() == KeyEvent.VK_SPACE) {
+            dogDearth.tossHole(this);
+        }
     }
 }

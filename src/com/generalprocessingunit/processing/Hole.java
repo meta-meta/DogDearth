@@ -9,14 +9,20 @@ import processing.core.PVector;
 public class Hole
 {
     PVector location;
+    PVector velocity;
+
+    int millisAtPrevCalc;
+    boolean tossed;
+
     static final int r = 150;
     boolean active; // once they are on the ground
     PShape shape;
 
     int millisAtBelch = 0;
 
-    Hole(PApplet p5, float x, float y){
-        location = new PVector(x, 0, y);
+    Hole(PApplet p5, float x, float y, float z){
+        location = new PVector(x, y, z);
+        velocity = new PVector(0, .3f, 1f);
         createGeometry(p5);
     }
 
@@ -25,7 +31,7 @@ public class Hole
         shape = p5.createShape(PShape.GEOMETRY);
         shape.beginShape(PConstants.QUAD_STRIP);
 //        shape.noStroke();
-        shape.stroke(40, 20, 30);
+        shape.stroke(80, 40, 60);
         shape.fill(0);
 
         float steps = 25;
@@ -47,7 +53,17 @@ public class Hole
         }
     }
 
+    void toss(PApplet p5) {
+        tossed = true;
+        millisAtPrevCalc = p5.millis();
+    }
+
+    void beforeDraw(PApplet p5) {
+        calculateLocation(p5);
+    }
+
     void draw(PGraphics pG, PApplet p5){
+
 
         int m = p5.millis()-millisAtBelch;
         float belchAmplitude;
@@ -61,7 +77,38 @@ public class Hole
             belchAmplitude = 0;
         }
 
+        if(tossed) {
+            active = false;
+            belchAmplitude = 3f;
+        }
         wobble(p5.millis(), belchAmplitude );
+
+        pG.pushMatrix();
+        pG.translate(location.x, location.y, location.z);
+        pG.rotateY(p5.millis() / (tossed ? -50f : 5000f));
         pG.shape(shape);
+        pG.popMatrix();
+    }
+
+    private void calculateLocation(PApplet p5) {
+        if(tossed) {
+            int millisNow = p5.millis();
+            int dT = millisNow - millisAtPrevCalc;
+            millisAtPrevCalc = millisNow;
+            location = new PVector(
+                location.x + dT * velocity.x,
+                location.y + dT * velocity.y,
+                location.z + dT * velocity.z
+            );
+
+            if(location.y < 10) {
+                location.y = 10;
+                tossed = false;
+            } else {
+                float g = .0007f;
+                velocity.y -= dT * g;
+            }
+
+        }
     }
 }

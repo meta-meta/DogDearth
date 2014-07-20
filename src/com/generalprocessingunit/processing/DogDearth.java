@@ -12,9 +12,9 @@ public class DogDearth
     /*
         Constants
      */
-    public static final int HALF_PLANE_WIDTH = 1000;
-    public static final int NUM_DOGS = 30;
-    public static final int NUM_HOLES = 1;
+    public static final int HALF_PLANE_WIDTH = 4000;
+    public static final int NUM_DOGS = 10;
+//    public static final int NUM_HOLES = 0;
 
 
     /*
@@ -57,21 +57,21 @@ public class DogDearth
 
         createDogs(p5);
 
-        createHoles(p5);
+//        createHoles(p5);
     }
 
-    private void createHoles(PApplet p5) {
-        int holeBound = HALF_PLANE_WIDTH - Hole.r;
-        for(int i = 0; i < NUM_HOLES; i++){
-            PVector newHoleLoc = new PVector();
-
-            while(isHoleClash(newHoleLoc)){
-                newHoleLoc = new PVector(p5.random(-holeBound, holeBound), 0,  p5.random(-holeBound, holeBound));
-            }
-
-            holes.add(new Hole(p5, newHoleLoc.x, newHoleLoc.z));
-        }
-    }
+//    private void createHoles(PApplet p5) {
+//        int holeBound = HALF_PLANE_WIDTH - Hole.r;
+//        for(int i = 0; i < NUM_HOLES; i++){
+//            PVector newHoleLoc = new PVector();
+//
+//            while(isHoleClash(newHoleLoc)){
+//                newHoleLoc = new PVector(p5.random(-holeBound, holeBound), 0,  p5.random(-holeBound, holeBound));
+//            }
+//
+//            holes.add(new Hole(p5, newHoleLoc.x, newHoleLoc.z));
+//        }
+//    }
 
     private boolean isHoleClash(PVector newLocation){
         if (PVector.dist(new PVector(), newLocation) < 2 * Hole.r) {
@@ -159,6 +159,14 @@ public class DogDearth
         updateDogs(p5);
 
         updatePlayerLocation(p5);
+
+        updateHoles(p5);
+    }
+
+    private void updateHoles(PApplet p5) {
+        for(Hole hole: holes) {
+            hole.beforeDraw(p5);
+        }
     }
 
     private void updateDogs(PApplet p5) {
@@ -219,6 +227,8 @@ public class DogDearth
     }
 
     void drawScene(PGraphics pG, PApplet p5){
+
+
         pG.rotateZ(PConstants.PI); // TODO: the scene is upside down. figure out why
         pG.translate(-player.location.x, -player.location.y, -player.location.z);
 
@@ -246,11 +256,7 @@ public class DogDearth
         }
 
         for(Hole hole: holes){
-            pG.pushMatrix();
-            pG.translate(hole.location.x, 30, hole.location.z);
-            pG.rotateY(p5.millis() / 5000f);
             hole.draw(pG, p5);
-            pG.popMatrix();
         }
 
         player.draw(pG);
@@ -259,4 +265,10 @@ public class DogDearth
     }
 
 
+    public void tossHole(PApplet p5) {
+        // TODO: hole should get created when player grabs it. hole.toss() gets called when player tosses it
+        Hole hole = new Hole(p5, player.location.x, 200f, player.location.z);
+        hole.toss(p5);
+        holes.add(hole);
+    }
 }

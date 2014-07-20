@@ -71,5 +71,9 @@ public class EntryPointVR extends PAppletVR
         if(e.getKeyCode() == ESC){
             exit();
         }
+
+        if(e.getKeyCode() == KeyEvent.VK_SPACE) {
+            dogDearth.tossHole(this);
+        }
     }
 }
