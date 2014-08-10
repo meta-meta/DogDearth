@@ -19,6 +19,8 @@ public class Dog
     PShape body;
 
     Leg[] legs = new Leg[4];
+    Leg[] frontLegs = new Leg[2];
+    Leg[] backLegs = new Leg[2];
 
     public class Leg
     {
@@ -92,6 +94,10 @@ public class Dog
         legs[2] = new Leg(legModels[2], new PVector(-xAdj,        (scale*15f) * yAdj * 0.6f, zAdj * 0.8f));
         legs[3] = new Leg(legModels[3], new PVector(-xAdj,        (scale*15f) * yAdj * 0.6f, -zAdj * 0.8f));
 
+        frontLegs[0] = legs[0];
+        frontLegs[1] = legs[1];
+        backLegs[0] = legs[2];
+        backLegs[1] = legs[3];
 
         /*
             Set location, orientation and dimensions
@@ -117,6 +123,7 @@ public class Dog
         // Body
         pG.translate(location.x, location.y, location.z);
         pG.rotateY(orientation.y);
+        pG.rotateZ(orientation.z);
 
         pG.shape(body);
 
@@ -149,10 +156,10 @@ public class Dog
     enum State {
         WALKING     (0.6f),
         RUNNING     (0.8f),
-        SITTING     (0.2f),
+        SITTING     (0.8f),
         STANDING    (0.3f),
         TURNING     (0.05f),
-        LYING       (0.6f);
+        LYING       (0.9f);
 
         float probabilityMaintainState;
         Action[] possibleActions;
@@ -203,28 +210,42 @@ public class Dog
                     target = (target < PConstants.QUARTER_PI ? 0 : // Snap the target rotation to 12|3|6|9 o'clock
                             (Math.abs(target - PConstants.HALF_PI) < PConstants.QUARTER_PI ? PConstants.HALF_PI :
                                     (Math.abs(target - PConstants.PI) < PConstants.QUARTER_PI ? PConstants.PI :
-                                            (Math.abs(target - (PConstants.PI + PConstants.HALF_PI)) < PConstants.QUARTER_PI ? (PConstants.PI + PConstants.HALF_PI) : 0))));
+                                            (Math.abs(target - (PConstants.PI + PConstants.HALF_PI)) < PConstants.QUARTER_PI ?
+                                                    (PConstants.PI + PConstants.HALF_PI) : 0))));
 
                     dog.orientation.y = tween(dog.orientationAtActionStart.y, target, progress);
                     break;
                 }
                 case LIE_DOWN: {
-                    if(State.SITTING == dog.currentState){
-                        changePose(dog, progress);
-                    } else if(State.STANDING == dog.currentState){
-                        changePose(dog, progress);
+                    if(State.STANDING == dog.currentState) {
+                        dog.location.z = tween(dog.locationAtActionStart.z, dog.locationAtActionStart.z - dog.dimensions.z/4, progress);
+                    }
+                    dog.location.y = tween(dog.locationAtActionStart.y, 0, progress);
+                    dog.orientation.z = tween(dog.orientationAtActionStart.z, 0, progress);
+                    for(Leg leg : dog.legs) {
+                        leg.rotation = tween(leg.rotationAtActionStart, PConstants.HALF_PI, progress);
                     }
                     break;
                 }
                 case SIT: {
-                    if(State.LYING == dog.currentState){
-                        changePose(dog, progress);
-                    } else if(State.STANDING == dog.currentState){
-                        changePose(dog, progress);
+                    dog.location.y = tween(dog.locationAtActionStart.y, dog.dimensions.y/2, progress);
+                    dog.orientation.z = tween(dog.orientationAtActionStart.z, PConstants.QUARTER_PI, progress);
+
+                    for(Leg leg : dog.backLegs) {
+                        leg.rotation = tween(leg.rotationAtActionStart, PConstants.QUARTER_PI, progress);
+                    }
+
+                    for(Leg leg : dog.frontLegs) {
+                        leg.rotation = tween(leg.rotationAtActionStart, -PConstants.QUARTER_PI, progress);
                     }
                     break;
                 }
                 case STAND: {
+                    if(State.LYING == dog.currentState) {
+                        dog.location.z = tween(dog.locationAtActionStart.z, 0, progress);
+                    }
+                    dog.location.y = tween(dog.locationAtActionStart.y, dog.dimensions.y/2, progress);
+                    dog.orientation.z = tween(dog.orientationAtActionStart.z, 0, progress);
                     for (Leg leg : dog.legs) {
                         leg.rotation = tween(leg.rotationAtActionStart, 0, progress);
                     }
@@ -275,10 +296,10 @@ public class Dog
     static {
         State.WALKING.setPossibleActions     (Action.TURN, Action.STAND, Action.RUN);
         State.RUNNING.setPossibleActions     (Action.TURN /*TODO: slide when turning and running*/, Action.STAND, Action.WALK);
-        State.SITTING.setPossibleActions     (/*Action.LIE_DOWN,*/ Action.STAND);
-        State.STANDING.setPossibleActions    (Action.TURN, /*Action.SIT, Action.LIE_DOWN,*/ Action.WALK);
-        State.TURNING.setPossibleActions     (Action.STAND, /*Action.SIT, Action.LIE_DOWN,*/ Action.WALK, Action.RUN);
-        State.LYING.setPossibleActions       (/*Action.SIT, */Action.STAND);
+        State.SITTING.setPossibleActions     (Action.LIE_DOWN, Action.STAND);
+        State.STANDING.setPossibleActions    (Action.TURN, Action.SIT, Action.LIE_DOWN, Action.WALK);
+        State.TURNING.setPossibleActions     (Action.STAND, Action.SIT, Action.LIE_DOWN, Action.WALK, Action.RUN);
+        State.LYING.setPossibleActions       (Action.SIT, Action.STAND);
     }
 
     public void doAction(PApplet p5)
