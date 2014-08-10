@@ -7,7 +7,7 @@ import processing.core.PVector;
 
 public class Player {
     PVector location;
-    PVector lookAt = new PVector(0, -20, 100);
+    PVector lookAt = new PVector(0, .2f, 1);
 
     PVector sternumPosition = new PVector();
     PVector handPosition = new PVector();

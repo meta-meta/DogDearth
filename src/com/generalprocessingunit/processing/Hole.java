@@ -20,9 +20,10 @@ public class Hole
 
     int millisAtBelch = 0;
 
-    Hole(PApplet p5, float x, float y, float z){
+    Hole(PApplet p5, float x, float y, float z, PVector lookat, float boost){
         location = new PVector(x, y, z);
-        velocity = new PVector(0, .3f, 1f);
+        velocity = new PVector(lookat.x, .3f, lookat.z).normalize(null);
+        velocity.mult(boost);
         createGeometry(p5);
     }
 

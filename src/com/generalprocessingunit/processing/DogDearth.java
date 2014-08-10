@@ -41,6 +41,7 @@ public class DogDearth
         keys.put(PConstants.DOWN, false);
         keys.put(PConstants.LEFT, false);
         keys.put(PConstants.RIGHT, false);
+        keys.put(PConstants.SHIFT, false);
     }
 
     // Mouse State TODO: create robust 3d control class for mouse
@@ -202,23 +203,35 @@ public class DogDearth
         }
     }
 
+
+    float boost = 1;
+
     private void updatePlayerLocation(PApplet p5) {
+        if(keys.get(PConstants.SHIFT)){
+            boost = 2;
+        } else {
+            boost = 1;
+        }
+
         // move the player location according to keys pressed
+        PVector moveBy = new PVector(player.lookAt.x, 0, player.lookAt.z).normalize(null);
+        moveBy.mult(8 * boost);
+
         if(keys.get(PConstants.UP)){
-            player.location.z += 15f;
+            player.location.add(moveBy);
         }
         if(keys.get(PConstants.DOWN)){
-            player.location.z -= 15f;
+            player.location.sub(moveBy);
         }
         if(keys.get(PConstants.LEFT)){
-            player.location.x -= 15f;
+            player.lookAt = Rotation.rotatePVectorY(-0.015f * boost, player.lookAt);
         }
         if(keys.get(PConstants.RIGHT)){
-            player.location.x += 15f;
+            player.lookAt = Rotation.rotatePVectorY(0.015f * boost, player.lookAt);
         }
         if(p5.mousePressed){
-            player.lookAt = Rotation.rotatePVectorY((p5.mouseX - mouseXAtClick) * 0.0001f, player.lookAt);
-            player.lookAt = Rotation.rotatePVectorX((p5.mouseY - mouseYAtClick) * 0.0001f, player.lookAt);
+            player.lookAt = Rotation.rotatePVectorY((p5.mouseX - mouseXAtClick) * 0.0003f, player.lookAt);
+            player.lookAt = Rotation.rotatePVectorX((p5.mouseY - mouseYAtClick) * 0.0003f, player.lookAt);
         }
     }
 
@@ -227,10 +240,6 @@ public class DogDearth
     }
 
     void drawScene(PGraphics pG, PApplet p5){
-
-
-        pG.rotateZ(PConstants.PI); // TODO: the scene is upside down. figure out why
-        pG.translate(-player.location.x, -player.location.y, -player.location.z);
 
         /*
             Lights
@@ -267,7 +276,7 @@ public class DogDearth
 
     public void tossHole(PApplet p5) {
         // TODO: hole should get created when player grabs it. hole.toss() gets called when player tosses it
-        Hole hole = new Hole(p5, player.location.x, 200f, player.location.z);
+        Hole hole = new Hole(p5, player.location.x, 200f, player.location.z, player.lookAt, boost);
         hole.toss(p5);
         holes.add(hole);
     }
