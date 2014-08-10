@@ -280,4 +280,10 @@ public class DogDearth
         hole.toss(p5);
         holes.add(hole);
     }
+
+    public void commandDogs(PApplet p5, Dog.Action action) {
+        for(Dog dog : dogs) {
+            dog.commandNextAction(p5, action);
+        }
+    }
 }

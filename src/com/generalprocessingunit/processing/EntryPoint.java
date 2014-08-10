@@ -77,5 +77,17 @@ public class EntryPoint extends PApplet{
         if(e.getKeyCode() == KeyEvent.VK_SPACE) {
             dogDearth.tossHole(this);
         }
+
+        if(e.getKeyCode() == KeyEvent.VK_L) {
+            dogDearth.commandDogs(this, Dog.Action.LIE_DOWN);
+            System.out.println("Lie Down");
+        }
+
+        if(e.getKeyCode() == KeyEvent.VK_S) {
+            dogDearth.commandDogs(this, Dog.Action.SIT);
+            System.out.println("Sit");
+
+        }
+
     }
 }

@@ -6,11 +6,17 @@ import processing.core.PGraphics;
 import processing.core.PShape;
 import processing.core.PVector;
 
+import java.util.Arrays;
+import java.util.List;
+
 public class Dog
 {
     PVector location;
     PVector orientation;
     PVector dimensions;
+
+    Action commandedAction;
+
     int color;
     float baseSpeed;
     float walkingSpeed;
@@ -156,10 +162,10 @@ public class Dog
     enum State {
         WALKING     (0.6f),
         RUNNING     (0.8f),
-        SITTING     (0.8f),
-        STANDING    (0.3f),
+        SITTING     (0.9f),
+        STANDING    (0.5f),
         TURNING     (0.05f),
-        LYING       (0.9f);
+        LYING       (0.96f);
 
         float probabilityMaintainState;
         Action[] possibleActions;
@@ -242,7 +248,7 @@ public class Dog
                 }
                 case STAND: {
                     if(State.LYING == dog.currentState) {
-                        dog.location.z = tween(dog.locationAtActionStart.z, 0, progress);
+                        dog.location.z = tween(dog.locationAtActionStart.z, dog.locationAtActionStart.z + dog.dimensions.z/4, progress);
                     }
                     dog.location.y = tween(dog.locationAtActionStart.y, dog.dimensions.y/2, progress);
                     dog.orientation.z = tween(dog.orientationAtActionStart.z, 0, progress);
@@ -276,10 +282,6 @@ public class Dog
             dog.legs[1].rotation = s * PApplet.sin(PConstants.PI + progress * PConstants.TWO_PI * numSteps);
             dog.legs[2].rotation = s * PApplet.sin(1 + progress * PConstants.TWO_PI * numSteps);
             dog.legs[3].rotation = s * PApplet.sin(1 + PConstants.PI + progress * PConstants.TWO_PI * numSteps);
-        }
-
-        private void changePose(Dog dog, float progress){
-
         }
 
         private PVector tween(PVector initial, PVector goal, float progress){
@@ -323,10 +325,24 @@ public class Dog
     void decideNextAction(PApplet p5){
         initAction(p5);
 
-        Action[] possibleActions = currentState.possibleActions;
-        if(p5.random(1) > currentState.probabilityMaintainState){
-            currentAction = possibleActions[(int)p5.random(possibleActions.length)];
+        List<Action> possibleActions = Arrays.asList(currentState.possibleActions);
+
+        if(null != commandedAction && possibleActions.contains(commandedAction)) {
+            currentAction = commandedAction;
+            commandedAction = null;
+            return;
         }
+
+        if(p5.random(1) > currentState.probabilityMaintainState){
+            currentAction = possibleActions.get((int)p5.random(possibleActions.size()));
+        }
+    }
+
+    public void commandNextAction(PApplet p5, Action action) {
+        if(currentAction != Action.LIE_DOWN && currentAction != Action.SIT && currentAction != Action.STAND) {
+            forceNextAction(p5, Action.STAND);
+        }
+        commandedAction = action;
     }
 
     private void initAction(PApplet p5) {
