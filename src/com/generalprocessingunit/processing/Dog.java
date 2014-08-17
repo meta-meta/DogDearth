@@ -24,6 +24,8 @@ public class Dog
 
     PShape body;
 
+    Head head;
+
     Leg[] legs = new Leg[4];
     Leg[] frontLegs = new Leg[2];
     Leg[] backLegs = new Leg[2];
@@ -55,6 +57,29 @@ public class Dog
         }
     }
 
+    public class Head {
+        PVector position;
+        PVector rotation;
+        PVector rotationAtActionStart;
+        PShape model;
+
+        Head(PShape model, PVector position) {
+            this.model = model;
+            this.position = position;
+            rotation = new PVector();
+        }
+
+        public void draw(PGraphics pG) {
+            pG.pushMatrix();
+            pG.translate(position.x, position.y, position.z);
+            pG.rotateY(rotation.y);
+            pG.rotateZ(rotation.z);
+            pG.rotateX(rotation.x);
+            pG.shape(model);
+            pG.popMatrix();
+        }
+    }
+
     /**
      *
      * @param p5 reference to PApplet
@@ -73,17 +98,29 @@ public class Dog
             Load and position dog body
          */
         body = p5.loadShape("dog_body_sans_head.obj");
-        float scale = p5.random(1,2);
+        float dogScale = p5.random(1,2) * 15f;
 
         float yAdj = /*(scale*15f) **/ 1.2f * body.getHeight() / 2;
-        float xAdj = (scale * 15f) * 0.75f * body.getWidth() / 2;
-        float zAdj = (scale * 15f) * 0.6f * body.getDepth() / 2;
+        float xAdj = dogScale * 0.75f * body.getWidth() / 2;
+        float zAdj = dogScale * 0.6f * body.getDepth() / 2;
 
-        body.translate(0, yAdj, 0);
-        body.scale(scale * 15f);
+        body.translate(0, yAdj - .4f, 0); // model is offset .4
+        body.translate(-6.2f, 0, 0); // model is offset 6.2
+        body.scale(dogScale);
 
         this.color = color;
         body.setFill(color);
+
+        /*
+        * Load dog head
+        * */
+
+        PShape headModel = p5.loadShape("dog_head.obj");
+        headModel.setFill(color);
+        headModel.scale(dogScale);
+
+        head = new Head(headModel, new PVector(dogScale * -6.2f, dogScale * 1,0));
+
 
         /*
             Load and position dog legs
@@ -91,14 +128,14 @@ public class Dog
         PShape[] legModels = new PShape[4];
         for (int i = 0; i < 4; i++) {
             legModels[i] = p5.loadShape(String.format("dog_leg_%s.obj", i));
-            legModels[i].scale(scale * 15f);
+            legModels[i].scale(dogScale);
             legModels[i].setFill(color);
         }
 
-        legs[0] = new Leg(legModels[0], new PVector(xAdj * 0.15f, (scale*15f) * yAdj * 0.6f, zAdj));
-        legs[1] = new Leg(legModels[1], new PVector(xAdj * 0.15f, (scale*15f) * yAdj * 0.6f, -zAdj));
-        legs[2] = new Leg(legModels[2], new PVector(-xAdj,        (scale*15f) * yAdj * 0.6f, zAdj * 0.8f));
-        legs[3] = new Leg(legModels[3], new PVector(-xAdj,        (scale*15f) * yAdj * 0.6f, -zAdj * 0.8f));
+        legs[0] = new Leg(legModels[0], new PVector(xAdj * 0.15f, dogScale * yAdj * 0.6f, zAdj));
+        legs[1] = new Leg(legModels[1], new PVector(xAdj * 0.15f, dogScale * yAdj * 0.6f, -zAdj));
+        legs[2] = new Leg(legModels[2], new PVector(-xAdj,        dogScale * yAdj * 0.6f, zAdj * 0.8f));
+        legs[3] = new Leg(legModels[3], new PVector(-xAdj,        dogScale * yAdj * 0.6f, -zAdj * 0.8f));
 
         frontLegs[0] = legs[0];
         frontLegs[1] = legs[1];
@@ -132,6 +169,8 @@ public class Dog
         pG.rotateZ(orientation.z);
 
         pG.shape(body);
+
+        head.draw(pG);
 
         for(Leg leg: legs) {
             leg.draw(pG);
@@ -236,6 +275,8 @@ public class Dog
                 case SIT: {
                     dog.location.y = tween(dog.locationAtActionStart.y, dog.dimensions.y/2, progress);
                     dog.orientation.z = tween(dog.orientationAtActionStart.z, PConstants.QUARTER_PI, progress);
+
+                    dog.head.rotation.z = tween(dog.head.rotationAtActionStart.z, -PConstants.QUARTER_PI, progress);
 
                     for(Leg leg : dog.backLegs) {
                         leg.rotation = tween(leg.rotationAtActionStart, PConstants.QUARTER_PI, progress);
@@ -351,6 +392,7 @@ public class Dog
         millisAtActionStart = p5.millis();
         locationAtActionStart = new PVector(location.x, location.y, location.z);
         orientationAtActionStart = new PVector(orientation.x, orientation.y, orientation.z);
+        head.rotationAtActionStart = new PVector(head.rotation.x, head.rotation.y, head.rotation.z);
         for (Leg leg : legs) {
             leg.rotationAtActionStart = leg.rotation;
         }
