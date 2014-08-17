@@ -26,6 +26,8 @@ public class DogDearth
     PShape plane;
     PShape gazebo;
 
+    SpiralingShape spiralingShape;
+
     // Characters
     List<Dog> dogs = new ArrayList<>();
     List<Hole> holes = new ArrayList<>();
@@ -57,6 +59,8 @@ public class DogDearth
         createGazebo(p5);
 
         createDogs(p5);
+
+        spiralingShape = new SpiralingShape(p5);
 
 //        createHoles(p5);
     }
@@ -259,6 +263,19 @@ public class DogDearth
          */
         pG.shape(plane);
         pG.shape(gazebo);
+
+        pG.pushMatrix();
+        pG.rotateY(-PApplet.atan2(player.lookAt.z, player.lookAt.x) + PConstants.HALF_PI);
+        float lookY = player.lookAt.normalize(null).y;
+        if(0.5f < lookY && lookY < 0.8f) {
+            spiralingShape.increaseSpeed(p5);
+        } else {
+            spiralingShape.decreaseSpeed(p5);
+        }
+
+        spiralingShape.draw(p5, pG);
+
+        pG.popMatrix();
 
         for(Dog dog: dogs){
             dog.draw(pG);
