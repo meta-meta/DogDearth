@@ -72,7 +72,7 @@ public class Dog
         /*
             Load and position dog body
          */
-        body = p5.loadShape("dog_body.obj");
+        body = p5.loadShape("dog_body_sans_head.obj");
         float scale = p5.random(1,2);
 
         float yAdj = /*(scale*15f) **/ 1.2f * body.getHeight() / 2;
