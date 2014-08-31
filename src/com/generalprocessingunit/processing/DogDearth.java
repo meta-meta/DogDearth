@@ -138,7 +138,7 @@ public class DogDearth
         // currently can't do this on a PShape. Do we want to create this plane every render??
         PGraphics grid = p5.createGraphics(HALF_PLANE_WIDTH, HALF_PLANE_WIDTH);
         grid.beginDraw();
-        grid.background(20, 255, 0);
+        grid.background(20, 255, 0, 10);
 
         for( int n = 0; n <= HALF_PLANE_WIDTH; n += 10){
             grid.stroke(n % 100 == 0 ? 0 : 50);

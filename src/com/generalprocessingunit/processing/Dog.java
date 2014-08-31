@@ -94,32 +94,23 @@ public class Dog
      * @param color color of dog
      */
     Dog(PApplet p5, float x, float z, float rx, float ry, float rz, float w, float h, float d, int color){
+        float dogScale = p5.random(1,2) * 15f;
+        this.color = color;
+
         /*
             Load and position dog body
          */
-        body = p5.loadShape("dog_body_sans_head.obj");
-        float dogScale = p5.random(1,2) * 15f;
-
-        float yAdj = /*(scale*15f) **/ 1.2f * body.getHeight() / 2;
-        float xAdj = dogScale * 0.75f * body.getWidth() / 2;
-        float zAdj = dogScale * 0.6f * body.getDepth() / 2;
-
-        body.translate(0, yAdj - .4f, 0); // model is offset .4
-        body.translate(-6.2f, 0, 0); // model is offset 6.2
-        body.scale(dogScale);
-
-        this.color = color;
+        body = p5.loadShape("body_smooth.obj");
         body.setFill(color);
+        body.scale(dogScale);
 
         /*
         * Load dog head
         * */
-
-        PShape headModel = p5.loadShape("dog_head.obj");
+        PShape headModel = p5.loadShape("head_smooth.obj");
         headModel.setFill(color);
         headModel.scale(dogScale);
-
-        head = new Head(headModel, new PVector(dogScale * -6.2f, dogScale * 1,0));
+        head = new Head(headModel, new PVector(1.5f * dogScale, .43f * dogScale, 0));
 
 
         /*
@@ -127,15 +118,15 @@ public class Dog
          */
         PShape[] legModels = new PShape[4];
         for (int i = 0; i < 4; i++) {
-            legModels[i] = p5.loadShape(String.format("dog_leg_%s.obj", i));
-            legModels[i].scale(dogScale);
+            legModels[i] = p5.loadShape(String.format("leg_%s_smooth.obj", i));
             legModels[i].setFill(color);
+            legModels[i].scale(dogScale);
         }
 
-        legs[0] = new Leg(legModels[0], new PVector(xAdj * 0.15f, dogScale * yAdj * 0.6f, zAdj));
-        legs[1] = new Leg(legModels[1], new PVector(xAdj * 0.15f, dogScale * yAdj * 0.6f, -zAdj));
-        legs[2] = new Leg(legModels[2], new PVector(-xAdj,        dogScale * yAdj * 0.6f, zAdj * 0.8f));
-        legs[3] = new Leg(legModels[3], new PVector(-xAdj,        dogScale * yAdj * 0.6f, -zAdj * 0.8f));
+        legs[0] = new Leg(legModels[0], new PVector( 0.8f * dogScale, -0.6f * dogScale, -0.37f * dogScale));
+        legs[1] = new Leg(legModels[1], new PVector( 0.8f * dogScale, -0.6f * dogScale,  0.37f * dogScale));
+        legs[2] = new Leg(legModels[2], new PVector(-1.6f * dogScale, -0.6f * dogScale, -0.37f * dogScale));
+        legs[3] = new Leg(legModels[3], new PVector(-1.6f * dogScale, -0.6f * dogScale,  0.37f * dogScale));
 
         frontLegs[0] = legs[0];
         frontLegs[1] = legs[1];
@@ -146,7 +137,7 @@ public class Dog
             Set location, orientation and dimensions
          */
         w = body.getWidth();
-        h = body.getHeight();
+        h = body.getHeight() + legs[0].model.getHeight() + headModel.getHeight();
         d = body.getDepth();
         float y = h/2;
 
@@ -262,10 +253,12 @@ public class Dog
                     break;
                 }
                 case LIE_DOWN: {
+                    dog.head.rotation.z = tween(dog.head.rotationAtActionStart.z, 0, progress);
+
                     if(State.STANDING == dog.currentState) {
                         dog.location.z = tween(dog.locationAtActionStart.z, dog.locationAtActionStart.z - dog.dimensions.z/4, progress);
                     }
-                    dog.location.y = tween(dog.locationAtActionStart.y, 0, progress);
+                    dog.location.y = tween(dog.locationAtActionStart.y, dog.dimensions.y * .2f, progress);
                     dog.orientation.z = tween(dog.orientationAtActionStart.z, 0, progress);
                     for(Leg leg : dog.legs) {
                         leg.rotation = tween(leg.rotationAtActionStart, PConstants.HALF_PI, progress);
@@ -273,8 +266,8 @@ public class Dog
                     break;
                 }
                 case SIT: {
-                    dog.location.y = tween(dog.locationAtActionStart.y, dog.dimensions.y/2, progress);
-                    dog.orientation.z = tween(dog.orientationAtActionStart.z, PConstants.QUARTER_PI, progress);
+                    dog.location.y = tween(dog.locationAtActionStart.y, dog.dimensions.y * .4f, progress);
+                    dog.orientation.z = tween(dog.orientationAtActionStart.z, PConstants.QUARTER_PI * 1.2f, progress);
 
                     dog.head.rotation.z = tween(dog.head.rotationAtActionStart.z, -PConstants.QUARTER_PI, progress);
 
@@ -288,6 +281,8 @@ public class Dog
                     break;
                 }
                 case STAND: {
+                    dog.head.rotation.z = tween(dog.head.rotationAtActionStart.z, 0, progress);
+
                     if(State.LYING == dog.currentState) {
                         dog.location.z = tween(dog.locationAtActionStart.z, dog.locationAtActionStart.z + dog.dimensions.z/4, progress);
                     }
