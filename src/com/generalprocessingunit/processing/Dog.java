@@ -88,13 +88,10 @@ public class Dog
      * @param rx rotation about x-axis
      * @param ry rotation about y-axis
      * @param rz rotation about z-axis
-     * @param w width
-     * @param h height
-     * @param d depth
      * @param color color of dog
      */
-    Dog(PApplet p5, float x, float z, float rx, float ry, float rz, float w, float h, float d, int color){
-        float dogScale = p5.random(1,2) * 15f;
+    Dog(PApplet p5, float x, float z, float rx, float ry, float rz, int color){
+        float dogScale = p5.random(1,2) * 0.15f;
         this.color = color;
 
         /*
@@ -136,18 +133,18 @@ public class Dog
         /*
             Set location, orientation and dimensions
          */
-        w = body.getWidth();
-        h = body.getHeight() + legs[0].model.getHeight() + headModel.getHeight();
-        d = body.getDepth();
-        float y = h/2;
+        float w = body.getWidth();
+        float h = body.getHeight() + legs[0].model.getHeight() + headModel.getHeight();
+        float d = body.getDepth();
+        float y = h / 2;
 
         location = new PVector(x, y, z);
         orientation = new PVector(rx, ry, rz);
         dimensions = new PVector(w, h, d);
 
         baseSpeed = p5.random(0.05f, 1.5f);
-        walkingSpeed = 300 * baseSpeed;
-        runningSpeed = 1000 * baseSpeed;
+        walkingSpeed = 5 * baseSpeed;
+        runningSpeed = 10 * baseSpeed;
     }
 
 
@@ -171,8 +168,12 @@ public class Dog
     }
 
     boolean tryMove(float x, float z){
-        // TODO: HALF_PLANE_WIDTH decides the coordinates of the turf, and the turf is really what should be referenced here
-        if((x + dimensions.z / 2) > DogDearth.HALF_PLANE_WIDTH || (x - dimensions.z / 2) < -DogDearth.HALF_PLANE_WIDTH || (z + dimensions.z / 2) > DogDearth.HALF_PLANE_WIDTH || (z - dimensions.z / 2) < -DogDearth.HALF_PLANE_WIDTH){
+        // TODO: PLANE_WIDTH decides the coordinates of the turf, and the turf is really what should be referenced here
+        if (    (x + dimensions.z / 2) >  DogDearth.PLANE_WIDTH / 2 ||
+                (x - dimensions.z / 2) < -DogDearth.PLANE_WIDTH / 2 ||
+                (z + dimensions.z / 2) >  DogDearth.PLANE_WIDTH / 2 ||
+                (z - dimensions.z / 2) < -DogDearth.PLANE_WIDTH / 2)
+        {
             return false;
         } else {
             location.x = x;
@@ -312,7 +313,7 @@ public class Dog
 
         private void rotateLegs(Dog dog, float speed, float progress) {
             float numSteps = duration / 1000; // 1 step per second??
-            float s = speed / 1000f;
+            float s = speed / 10f;
 
             dog.legs[0].rotation = s * PApplet.sin(progress * PConstants.TWO_PI * numSteps);
             dog.legs[1].rotation = s * PApplet.sin(PConstants.PI + progress * PConstants.TWO_PI * numSteps);

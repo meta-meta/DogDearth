@@ -14,7 +14,7 @@ public class Hole
     int millisAtPrevCalc;
     boolean tossed;
 
-    static final int r = 150;
+    static final float r = .8f;
     boolean active; // once they are on the ground
     PShape shape;
 
@@ -22,8 +22,8 @@ public class Hole
 
     Hole(PApplet p5, float x, float y, float z, PVector lookat, float boost){
         location = new PVector(x, y, z);
-        velocity = new PVector(lookat.x, .3f, lookat.z).normalize(null);
-        velocity.mult(boost);
+        velocity = new PVector(lookat.x, .2f, lookat.z).normalize(null);
+        velocity.mult(boost * 0.01f);
         createGeometry(p5);
     }
 
@@ -31,7 +31,6 @@ public class Hole
     {
         shape = p5.createShape(PShape.GEOMETRY);
         shape.beginShape(PConstants.QUAD_STRIP);
-//        shape.noStroke();
         shape.stroke(80, 40, 60);
         shape.fill(0);
 
@@ -49,7 +48,7 @@ public class Hole
     private void wobble(int t, float a){
         for(int i = 0; i < shape.getVertexCount(); i++){
             PVector v = shape.getVertex(i);
-            v.y = (2 * a * PApplet.sin(t/1000f)) * ( (r - PApplet.abs(v.x))/r) * PApplet.sin(t/100f + (v.x / 10f ));
+            v.y = (.03f * a * PApplet.sin(t/1000f)) * ( (r - PApplet.abs(v.x))/r) * PApplet.sin(t / 100f + ( 10 * v.x / r));
             shape.setVertex(i, v);
         }
     }
@@ -66,13 +65,13 @@ public class Hole
     void draw(PGraphics pG, PApplet p5){
 
 
-        int m = p5.millis()-millisAtBelch;
+        int m = p5.millis() - millisAtBelch;
         float belchAmplitude;
         if(m < 500){
             active = false;
-            belchAmplitude = m/20f;
+            belchAmplitude = m / 20f;
         } else if(m < 1500) {
-            belchAmplitude = 25 - (m - 500)/40f;
+            belchAmplitude = 25 - (m - 500) / 40f;
         } else {
             active = true;
             belchAmplitude = 0;
@@ -102,11 +101,11 @@ public class Hole
                 location.z + dT * velocity.z
             );
 
-            if(location.y < 10) {
-                location.y = 10;
+            if(location.y < .1f) {
+                location.y = .1f;
                 tossed = false;
             } else {
-                float g = .0007f;
+                float g = .000008f;
                 velocity.y -= dT * g;
             }
 

@@ -17,7 +17,7 @@ public class Helper {
                 pG.pushMatrix();
                 pG.translate(v.x, v.y, v.z);
                 pG.stroke(i * (255 / 4) , 255, 255);
-                pG.box(20);
+                pG.box(.1f);
                 pG.popMatrix();
             }
             pG.colorMode(PConstants.RGB);
