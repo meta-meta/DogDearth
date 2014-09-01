@@ -7,8 +7,8 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="module" module-name="OculusRiftSandbox" />
     <orderEntry type="module" module-name="processing-core" />
-    <orderEntry type="module" module-name="VRSandbox" />
   </component>
 </module>
 

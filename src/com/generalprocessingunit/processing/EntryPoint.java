@@ -27,7 +27,7 @@ public class EntryPoint extends PApplet{
 	
 	@Override
 	public void draw(){
-        dogDearth.beforeDraw(this);
+        dogDearth.updateState(this);
 
         pG.beginDraw();
         pG.camera();

@@ -12,7 +12,7 @@ public class EntryPointVR extends PAppletVR
     DogDearth dogDearth = new DogDearth();
 
     public static void main(String[] args){
-        PAppletVR.main(new EntryPointVR());
+        PAppletVR.main(EntryPointVR.class);
     }
 
 
@@ -23,44 +23,28 @@ public class EntryPointVR extends PAppletVR
     }
 
     @Override
-    public void beforeDraw() {
-        super.beforeDraw();
-        dogDearth.beforeDraw(this);
-    }
-
-    @Override
-    public void draw() {
-        super.draw();
-    }
-
-    @Override
-    public void drawInitialScene(PGraphics scene)
-    {
-        super.drawInitialScene(scene);
-    }
-
-    @Override
-    public void draw2dScene(PGraphics scene, int eye, PVector hydraBasePos)
-    {
-        dogDearth.draw2D(scene);
+    protected void updateState() {
+        dogDearth.updateState(this);
+        headContainer.setLocation(dogDearth.player.location);
     }
 
 
+    @Override
+    protected void drawViewPreCamera(int eye, PGraphics pG) {
+        dogDearth.draw2D(pG);
+    }
 
     @Override
-    public void drawScene(PGraphics scene, int eye, PVector hydraBasePos) {
-
-//        pG.camera(dogDearth.playerLocation.x, dogDearth.playerLocation.y, dogDearth.playerLocation.z, dogDearth.playerLocation.x + dogDearth.lookAt.x, dogDearth.playerLocation.y + dogDearth.lookAt.y, dogDearth.playerLocation.z + dogDearth.lookAt.z, 0, -1f, 0);
-//        pG.perspective(PI / 2.8f, width / height, 0.1f, 10000f);
-
-        dogDearth.drawScene(scene, this);
-
+    protected void drawView(int eye, PGraphics pG) {
+        dogDearth.player.lookAt = lookat;
+        dogDearth.drawScene(pG, this);
     }
 
     @Override
     public void keyPressed(KeyEvent e)
     {
         DogDearth.keys.put(e.getKeyCode(), true);
+        super.keyPressed(e);
     }
 
     @Override
@@ -75,5 +59,18 @@ public class EntryPointVR extends PAppletVR
         if(e.getKeyCode() == KeyEvent.VK_SPACE) {
             dogDearth.tossHole(this);
         }
+
+        if(e.getKeyCode() == KeyEvent.VK_L) {
+            dogDearth.commandDogs(this, Dog.Action.LIE_DOWN);
+            System.out.println("Lie Down");
+        }
+
+        if(e.getKeyCode() == KeyEvent.VK_S) {
+            dogDearth.commandDogs(this, Dog.Action.SIT);
+            System.out.println("Sit");
+
+        }
+
+        super.keyReleased(e);
     }
 }
