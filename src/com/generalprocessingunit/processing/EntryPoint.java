@@ -48,7 +48,7 @@ public class EntryPoint extends PApplet{
             0, -1f, 0
         );
 
-        pG.perspective(PI / 2.8f, width / height, 0.1f, 10000f);
+        pG.perspective(PI / 2.8f, width / height, 0.1f, 100000f);
 
         dogDearth.drawScene(pG, this);
 
@@ -67,12 +67,19 @@ public class EntryPoint extends PApplet{
     @Override
     public void keyPressed(KeyEvent e)
     {
-        DogDearth.keys.put(e.getKeyCode(), true);
+        if(!WolframBar.isFocused()) {
+            DogDearth.keys.put(e.getKeyCode(), true);
+        }
     }
 
     @Override
     public void keyReleased(KeyEvent e)
     {
+        if(WolframBar.isFocused()) {
+            WolframBar.keyPressed(e);
+            return;
+        }
+
         DogDearth.keys.put(e.getKeyCode(), false);
         if(e.getKeyCode() == KeyEvent.VK_SPACE) {
             dogDearth.tossHole(this);
@@ -89,5 +96,15 @@ public class EntryPoint extends PApplet{
 
         }
 
+        if(e.getKeyCode() == KeyEvent.VK_F1) {
+            WolframBar.setFocus();
+        }
+
+    }
+
+    @Override
+    public void destroy() {
+        WolframBar.cleanupVoice();
+        super.destroy();
     }
 }

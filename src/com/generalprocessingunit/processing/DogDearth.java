@@ -33,6 +33,7 @@ public class DogDearth
     List<Hole> holes = new ArrayList<>();
     Player player = new Player(new PVector(0, 2, -10));
 
+    static PFont arial;
 
     /*
         Keyboard state
@@ -59,6 +60,10 @@ public class DogDearth
         createDogs(p5);
 
         spiralingShape = new SpiralingShape(p5);
+
+
+        arial = p5.createFont("Arial", 5, true, WolframBar.charset);
+        WolframBar.setBarLocation(new PVector(50, 30, 100));
 
 //        createHoles(p5);
     }
@@ -260,6 +265,9 @@ public class DogDearth
          */
         pG.shape(plane);
         pG.shape(gazebo);
+
+        pG.textFont(arial);
+        WolframBar.draw(pG, p5);
 
         pG.pushMatrix();
         pG.rotateY(-PApplet.atan2(player.lookAt.z, player.lookAt.x) + PConstants.HALF_PI);
