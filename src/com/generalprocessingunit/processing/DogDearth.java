@@ -7,13 +7,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class DogDearth
+public class DogDearth extends MathsHelpers
 {
     /*
         Constants
      */
     public static final int PLANE_WIDTH = 100;
-    public static final int NUM_DOGS = 20;
+    public static final int NUM_DOGS = 10;
 //    public static final int NUM_HOLES = 0;
 
 
@@ -175,7 +175,31 @@ public class DogDearth
     private void updateDogs(PApplet p5) {
         for(Dog dog: dogs){
             dog.doAction(p5);
+
+            PVector headLocation = PVector.add(
+                    dog.location,
+                    dog.head.position
+
+//                    Rotation.rotatePVectorZ(
+//                            dog.orientation.z,
+////                            Rotation.rotatePVectorY(dog.orientation.y, dog.head.position)
+//                    )
+            );
+
+            PVector playerToHead = PVector.sub(player.location, headLocation);
+//            PApplet.println(playerToHead);
+
+            float angle = atan2(playerToHead.z, playerToHead.x) - HALF_PI;
+
+//            PApplet.println("a: " + angle);
+
+
+            dog.head.rotation.y = (TWO_PI - angle/* - dog.orientation.y*/) % TWO_PI;
         }
+
+
+
+
 
         List<Dog> deadDogs = new ArrayList<>();
         for(Dog dog: dogs){
@@ -214,7 +238,7 @@ public class DogDearth
 
         // move the player location according to keys pressed
         PVector moveBy = new PVector(player.lookAt.x, 0, player.lookAt.z).normalize(null);
-        if(keys.get(PConstants.UP) || keys.get(PConstants.DOWN)){
+        if(keys.get(PConstants.UP) || keys.get(PConstants.DOWN) || keys.get(PConstants.LEFT) || keys.get(PConstants.RIGHT)){
             if(!moving) {
                 moving = true;
                 millisAtMove = p5.millis();
@@ -223,17 +247,24 @@ public class DogDearth
 
             // accelerate from stop
             moveBy.mult((keys.get(PConstants.UP) ? 1 : -1) * PApplet.min(0.1f * boost, ellapsedMillis / 5000f));
+
+            if(keys.get(PConstants.LEFT)){
+                moveBy = Rotation.rotatePVectorY(HALF_PI, moveBy);
+            }
+            if(keys.get(PConstants.RIGHT)){
+                moveBy = Rotation.rotatePVectorY(-HALF_PI, moveBy);
+            }
+
             player.location.add(moveBy);
+
+
+
+
         } else {
             moving = false;
         }
 
-        if(keys.get(PConstants.LEFT)){
-            player.lookAt = Rotation.rotatePVectorY(-0.015f * boost, player.lookAt);
-        }
-        if(keys.get(PConstants.RIGHT)){
-            player.lookAt = Rotation.rotatePVectorY(0.015f * boost, player.lookAt);
-        }
+
         if(p5.mousePressed){
             player.lookAt = Rotation.rotatePVectorY((p5.mouseX - mouseXAtClick) * 0.0003f, player.lookAt);
             player.lookAt = Rotation.rotatePVectorX((p5.mouseY - mouseYAtClick) * 0.0003f, player.lookAt);

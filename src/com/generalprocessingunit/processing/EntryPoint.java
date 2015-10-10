@@ -13,13 +13,13 @@ public class EntryPoint extends PApplet{
 
 
     public static void main(String[] args){
-		PApplet.main(new String[] { /*"--present",*/ EntryPoint.class.getCanonicalName() });
+		PApplet.main(new String[] { "--present", EntryPoint.class.getCanonicalName() });
 	}
 
 
 	@Override
 	public void setup() {		
-		size(1400, 900, P3D);
+		size(1920, 1080, P3D);
         pG = createGraphics(width,height, P3D);
         dogDearth.setup(this);
     }

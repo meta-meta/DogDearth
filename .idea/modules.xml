@@ -3,10 +3,13 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/DogDearth.iml" filepath="$PROJECT_DIR$/DogDearth.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../_Libraries/JavaOSC/modules/core/src/main/JavaOSC.iml" filepath="$PROJECT_DIR$/../_Libraries/JavaOSC/modules/core/src/main/JavaOSC.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../MusicalLibrary/MusicalLibrary.iml" filepath="$PROJECT_DIR$/../MusicalLibrary/MusicalLibrary.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../OSC/OSC.iml" filepath="$PROJECT_DIR$/../OSC/OSC.iml" />
       <module fileurl="file://$PROJECT_DIR$/../OculusRiftSandbox/OculusRiftSandbox.iml" filepath="$PROJECT_DIR$/../OculusRiftSandbox/OculusRiftSandbox.iml" />
-      <module fileurl="file://$PROJECT_DIR$/../_Libraries/processing/core/processing-core.iml" filepath="$PROJECT_DIR$/../_Libraries/processing/core/processing-core.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../_Libraries/WolframAlphaJavaLibrary/WolframAlphaJavaLibrary.iml" filepath="$PROJECT_DIR$/../_Libraries/WolframAlphaJavaLibrary/WolframAlphaJavaLibrary.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../GradleTesting/processing/core/processing-core.iml" filepath="$PROJECT_DIR$/../GradleTesting/processing/core/processing-core.iml" />
       <module fileurl="file://C:/Dev Tools/processing/core/processing-core.iml" filepath="C:/Dev Tools/processing/core/processing-core.iml" />
     </modules>
   </component>
 </project>
-

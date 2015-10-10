@@ -61,7 +61,7 @@ public class SpiralingShape {
             increasing = false;
         }
         rotateSpeed = rotateSpeed > defaultRotateSpeed ? rotateSpeed - (p5.millis() - millisAtDecrease) / 10000f : defaultRotateSpeed;
-        System.out.println(rotateSpeed);
+//        System.out.println(rotateSpeed);
     }
 
     int millisAtLastDraw = 0;
